@@ -29,6 +29,8 @@ export default function Login() {
   }
 
   if (data.user) {
+    localStorage.setItem('user_id', data.user.id);
+    
     const { data: perfil } = await supabase
       .from('usuarios')
       .select('rol, nombre')
