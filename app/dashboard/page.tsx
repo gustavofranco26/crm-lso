@@ -1,13 +1,21 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { User, Phone, MapPin, CheckCircle, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 
 export default function Dashboard() {
+  const router = useRouter()
   const [leads, setLeads] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+    localStorage.clear()
+    router.push('/')
+}
 
   useEffect(() => {
     fetchLeads()
@@ -42,8 +50,8 @@ export default function Dashboard() {
   const { error: err2 } = await supabase
     .from('comisiones')
     .insert([{ 
-      comercial_id: comercialId,
-      lead_id: leadId, 
+      id_usuario: comercialId,
+      id_lead: leadId, 
       monto: 40 // Comisión fija de 40€ por venta cerrada.
     }])
 
@@ -60,13 +68,19 @@ export default function Dashboard() {
   if (loading) return <div className="flex justify-center mt-20"><Loader2 className="animate-spin" /></div>
 
   return (
-    <div className="p-8 bg-gray-50 min-h-screen">
+    <div className="p-8 bg-gray-50 min-h-screen relative">
       <div className="max-w-5xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-gray-800">Leads Activos - LSO</h1>
           <Link href="/dashboard/nuevo" className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
             + Nuevo Lead
           </Link>
+          <button 
+          onClick={handleLogout}
+          className="absolute bg-red-500 hover:bg-red-600 text-white text-xs font-bold py-2 px-4 rounded-lg transition-all uppercase shadow-sm right-4 top-4"
+        >
+          Cerrar Sesión
+        </button>
         </div>
 
         <div className="grid gap-4">

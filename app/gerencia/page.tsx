@@ -10,7 +10,12 @@ export default function PanelGerencia() {
   const [mostrarModal, setMostrarModal] = useState(false)
   const [leadSeleccionado, setLeadSeleccionado] = useState<string | null>(null)
 
-  
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+    localStorage.clear()
+    router.push('/')
+}
+
   const fetchLeads = useCallback(async () => {
     const { data, error } = await supabase
       .from('leads')
@@ -67,10 +72,17 @@ export default function PanelGerencia() {
 
   return (
     <div className="bg-white min-h-screen relative">
-      <div className="bg-[#4a86e8] p-4 text-white text-center font-bold text-2xl tracking-[0.2em]">
-        VISTA - RESUMEN GERENCIA
-      </div>
-
+      <header className="bg-[#4a86e8] p-4 text-white flex justify-between items-center shadow-md">
+        <div className="flex-1 text-center font-bold text-2xl tracking-[0.2em] ml-20">
+          VISTA - RESUMEN GERENCIA
+        </div>
+        <button 
+          onClick={handleLogout}
+          className="bg-red-500 hover:bg-red-600 text-white text-xs font-bold py-2 px-4 rounded-lg transition-all uppercase shadow-sm"
+        >
+          Cerrar Sesión
+        </button>
+      </header>
       <div className="overflow-x-auto p-4">
         <table className="w-full border-collapse border border-gray-400 text-sm">
           <thead>
