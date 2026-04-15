@@ -31,7 +31,7 @@ export default function Login() {
   if (data.user) {
     localStorage.setItem('user_id', data.user.id);
     
-    const { data: perfil } = await supabase
+    const { data: perfil, error: perfilError } = await supabase
       .from('usuarios')
       .select('rol, nombre')
       .eq('id', data.user.id)
@@ -44,6 +44,8 @@ export default function Login() {
       const rol = perfil.rol.toLowerCase()
       if (['gerencia', 'ti', 'contabilidad'].includes(rol)) {
         router.push('/gerencia')
+      } else if (rol === 'administrador') {
+        router.push('/administrador')
       } else {
         router.push('/dashboard')
       }

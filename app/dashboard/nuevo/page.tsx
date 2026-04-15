@@ -35,7 +35,7 @@ export default function NuevoLead() {
     if (error) {
       alert("Error al guardar: " + error.message)
     } else {
-      router.push('/dashboard')
+      router.push('/administrador')
     }
     setLoading(false)
   }
@@ -43,8 +43,8 @@ export default function NuevoLead() {
   return (
     <div className="p-8 bg-gray-50 min-h-screen text-black">
       <div className="max-w-2xl mx-auto">
-        <Link href="/dashboard" className="flex items-center gap-2 text-gray-600 mb-6 hover:text-black transition">
-          <ArrowLeft size={20} /> Volver al Dashboard
+        <Link href="/administrador" className="flex items-center gap-2 text-gray-600 mb-6 hover:text-black transition">
+          <ArrowLeft size={20} /> Regresar al Panel
         </Link>
 
         <h1 className="text-3xl font-bold mb-8">Registrar Nuevo Lead</h1>

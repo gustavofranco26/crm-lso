@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { User, Phone, MapPin, CheckCircle, Loader2 } from 'lucide-react'
-import Link from 'next/link'
+
 
 export default function Dashboard() {
   const router = useRouter()
@@ -22,10 +22,19 @@ export default function Dashboard() {
   }, [])
 
   async function fetchLeads() {
+    const comercialId = localStorage.getItem('user_id')
+
+    if (!comercialId) {
+      console.error("Error: No se ha identificado al usuario. Por favor, vuelve a iniciar sesión.")
+      setLoading(false)
+      return
+    }
+
     const { data } = await supabase
       .from('leads')
       .select('*')
       .neq('estado', 'cerrado')
+      .neq('asignado_a', comercialId)
       .order('fecha_creacion', { ascending: false })
     setLeads(data || [])
     setLoading(false)
@@ -65,6 +74,24 @@ export default function Dashboard() {
   fetchLeads()
 }
 
+
+  async function updateField(leadId: string, field: string, value: any) {
+    // Refresh veloz, aunque el cambio real se confirmará con la respuesta del servidor.
+    setLeads(prev => prev.map(l => l.id === leadId ? { ...l, [field]: value } : l))
+
+    const { error } = await supabase
+      .from('leads')
+      .update({ [field]: value })
+      .eq('id', leadId)
+
+    if (error) {
+      console.error("Error al guardar:", error.message)
+      // Actualizar si es necesario para revertir el cambio local.
+      fetchLeads()
+    }
+  }
+
+
   if (loading) return <div className="flex justify-center mt-20"><Loader2 className="animate-spin" /></div>
 
   return (
@@ -72,15 +99,9 @@ export default function Dashboard() {
       <div className="max-w-5xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-gray-800">Leads Activos - LSO</h1>
-          <Link href="/dashboard/nuevo" className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
-            + Nuevo Lead
-          </Link>
-          <button 
-          onClick={handleLogout}
-          className="absolute bg-red-500 hover:bg-red-600 text-white text-xs font-bold py-2 px-4 rounded-lg transition-all uppercase shadow-sm right-4 top-4"
-        >
+          <button onClick={handleLogout}className="absolute bg-red-500 hover:bg-red-600 text-white text-xs font-bold py-2 px-4 rounded-lg transition-all uppercase shadow-sm right-4 top-4">
           Cerrar Sesión
-        </button>
+          </button>
         </div>
 
         <div className="grid gap-4">
@@ -88,40 +109,99 @@ export default function Dashboard() {
             <p className="text-gray-500 text-center py-10">No hay leads activos en este momento.</p>
           ) : (
             leads.map((lead) => (
-              <div key={lead.id} className="bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex flex-col md:flex-row justify-between items-start md:items-center hover:shadow-md transition gap-4">
-                <div className="flex items-center gap-4">
-                  <div className="bg-blue-50 p-3 rounded-full text-blue-600">
-                    <User size={24} />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-lg text-gray-900">{lead.nombre_completo}</h3>
-                    <div className="flex flex-wrap gap-x-4 gap-y-1 text-gray-500 text-sm mt-1">
-                      <span className="flex items-center gap-1 font-medium text-blue-600">
-                        <Phone size={14}/> {lead.telefono}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <MapPin size={14}/> {lead.provincia}
-                      </span>
-                      {/* Nuevos campos visuales */}
-                      <span className="bg-green-50 text-green-700 px-2 rounded font-bold">
-                        💰 {lead.ingresos}€
-                      </span>
-                      <span className="bg-red-50 text-red-700 px-2 rounded font-bold">
-                        📉 Deuda: {lead.deuda_publica}€
-                      </span>
-                      <span className={`px-2 rounded font-bold ${lead.embargos === 'Sí' ? 'bg-orange-100 text-orange-700' : 'bg-gray-100 text-gray-600'}`}>
-                        🚫 Embargos: {lead.embargos}
-                      </span>
+              <div key={lead.id} className="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col gap-4 hover:shadow-md transition">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div className="flex items-center gap-3">
+                    <div className="bg-blue-50 p-2 rounded-full text-blue-600">
+                    <User size={20} />
                     </div>
-                  </div>
+                    <div>
+                    <h3 className="font-bold text-gray-900 uppercase">{lead.nombre_completo}</h3>
+                    <p className="text-xs text-gray-500">{lead.telefono} | {lead.provincia}</p>
+                    </div>
                 </div>
+
+                <div className="flex gap-2 items-center bg-gray-50 p-1 rounded-lg border">
+                    <span className="text-[10px] font-bold px-2 text-gray-400">WS:</span>
+                    {[1, 2, 3].map((n) => {
+                    const field = `w${n}`; // Asegúrate de tener estas columnas en Supabase
+                    const activo = lead[field];
+                    return (
+                        <button
+                        key={n}
+                        onClick={() => updateField(lead.id, field, !activo)}
+                        className={`w-8 h-8 rounded-md text-[10px] font-bold transition-all ${
+                            activo ? 'bg-green-500 text-white shadow-sm' : 'bg-white text-gray-400 border hover:bg-gray-100'
+                        }`}
+                        >
+                        W{n}
+                        </button>
+                    )
+                    })}
+                </div>
+
                 <button 
-                  onClick={() => cerrarVenta(lead.id)}
-                  className="flex items-center gap-2 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition font-semibold shadow-sm w-full md:w-auto justify-center"
+                    onClick={() => cerrarVenta(lead.id)}
+                    className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition font-bold text-xs flex items-center gap-2 shadow-sm ml-auto"
                 >
-                  <CheckCircle size={18} /> Cerrar Venta
+                    <CheckCircle size={14} /> CERRAR VENTA
                 </button>
-              </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 border-t pt-4">
+                
+                <div className="flex flex-col gap-1">
+                    <span className="text-[10px] font-bold text-gray-400 uppercase">Ingresos</span>
+                    <div className="flex gap-1">
+                    {[1000, 1500, 2000].map((m) => (
+                        <button
+                        key={m}
+                        onClick={() => updateField(lead.id, 'ingresos', m)}
+                        className={`flex-1 py-1 rounded border text-[10px] font-bold transition ${
+                            lead.ingresos === m ? 'bg-blue-600 text-white border-blue-700' : 'bg-white text-gray-600 hover:bg-gray-50'
+                        }`}
+                        >
+                        {m}€
+                        </button>
+                    ))}
+                    </div>
+                </div>
+
+                <div className="flex flex-col gap-1">
+                    <span className="text-[10px] font-bold text-gray-400 uppercase">¿Embargos?</span>
+                    <div className="flex gap-1">
+                    {['No', 'Sí'].map((op) => (
+                        <button
+                        key={op}
+                        onClick={() => updateField(lead.id, 'embargos', op)}
+                        className={`flex-1 py-1 rounded border text-[10px] font-bold transition ${
+                            lead.embargos === op 
+                            ? (op === 'Sí' ? 'bg-orange-500 text-white border-orange-600' : 'bg-green-500 text-white border-green-600') 
+                            : 'bg-white text-gray-600 hover:bg-gray-50'
+                        }`}
+                        >
+                        {op}
+                        </button>
+                    ))}
+                    </div>
+                </div>
+
+                <div className="flex flex-col gap-1">
+                    <span className="text-[10px] font-bold text-gray-400 uppercase">Estado</span>
+                    <select 
+                    value={lead.estado}
+                    onChange={(e) => updateField(lead.id, 'estado', e.target.value)}
+                    className="text-[10px] p-1.5 rounded border bg-white font-bold text-gray-700"
+                    >
+                    <option value="nuevo">Nuevo</option>
+                    <option value="en_llamada">En Llamada</option>
+                    <option value="pendiente">Pendiente Doc</option>
+                    <option value="no_interesado">No Interesado</option>
+                    </select>
+                </div>
+
+                </div>
+            </div>
             ))
           )}
         </div>
