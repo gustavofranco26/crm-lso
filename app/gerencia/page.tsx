@@ -2,6 +2,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
+import Link from 'next/dist/client/link'
 
 export default function PanelGerencia() {
   const router = useRouter()
@@ -76,6 +77,9 @@ export default function PanelGerencia() {
         <div className="flex-1 text-center font-bold text-2xl tracking-[0.2em] ml-20">
           VISTA - RESUMEN GERENCIA
         </div>
+        <Link href="/dashboard/nuevo" className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+          + Nuevo Lead
+        </Link>
         <button 
           onClick={handleLogout}
           className="bg-red-500 hover:bg-red-600 text-white text-xs font-bold py-2 px-4 rounded-lg transition-all uppercase shadow-sm"
