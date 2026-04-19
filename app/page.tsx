@@ -8,7 +8,7 @@ export default function Login() {
   const [pass, setPass] = useState('')
   const router = useRouter()
 
-  interface Usuario {
+  interface usuario {
     id: string;
     nombre: string;
     rol: string;
