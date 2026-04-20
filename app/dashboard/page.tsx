@@ -22,7 +22,10 @@ export default function Dashboard() {
   }, [])
 
   async function fetchLeads() {
-    const comercialId = localStorage.getItem('user_id')
+    setLoading(true)
+
+    const rawId = localStorage.getItem('user_id')
+    const comercialId = rawId?.replace(/['"]+/g, '')
 
     if (!comercialId) {
       console.error("Error: No se ha identificado al usuario. Por favor, vuelve a iniciar sesión.")
@@ -30,15 +33,21 @@ export default function Dashboard() {
       return
     }
 
-    const { data } = await supabase
-      .from('leads')
-      .select('*')
-      .neq('estado', 'cerrado')
-      .neq('asignado_a', comercialId)
-      .order('fecha_creacion', { ascending: false })
+    const { data, error } = await supabase
+    .from('leads')
+    .select('*')
+    .neq('estado', 'cerrado')
+    .eq('asignado_a', comercialId)
+    .order('fecha_creacion', { ascending: false })
+
+  if (error) {
+    console.error("Error al obtener leads:", error.message)
+  } else {
     setLeads(data || [])
-    setLoading(false)
   }
+  
+  setLoading(false)
+}
 
   async function cerrarVenta(leadId: string) {
   const comercialId = localStorage.getItem('user_id')
@@ -86,7 +95,6 @@ export default function Dashboard() {
 
     if (error) {
       console.error("Error al guardar:", error.message)
-      // Actualizar si es necesario para revertir el cambio local.
       fetchLeads()
     }
   }
@@ -124,7 +132,7 @@ export default function Dashboard() {
                 <div className="flex gap-2 items-center bg-gray-50 p-1 rounded-lg border">
                     <span className="text-[10px] font-bold px-2 text-gray-400">WS:</span>
                     {[1, 2, 3].map((n) => {
-                    const field = `w${n}`; // Asegúrate de tener estas columnas en Supabase
+                    const field = `w${n}`;
                     const activo = lead[field];
                     return (
                         <button
