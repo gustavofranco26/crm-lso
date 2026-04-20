@@ -104,7 +104,7 @@ export default function Dashboard() {
 
   return (
     <div className="p-8 bg-gray-50 min-h-screen relative">
-      <div className="max-w-5xl mx-auto">
+      <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-gray-800">Leads Activos - LSO</h1>
           <button onClick={handleLogout}className="absolute bg-red-500 hover:bg-red-600 text-white text-xs font-bold py-2 px-4 rounded-lg transition-all uppercase shadow-sm right-4 top-4">
@@ -118,98 +118,137 @@ export default function Dashboard() {
           ) : (
             leads.map((lead) => (
               <div key={lead.id} className="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col gap-4 hover:shadow-md transition">
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div className="flex items-center gap-3">
+                
+                {/* INFO CLIENTE */}
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                  <div className="flex items-center gap-3 min-w-[200px]">
                     <div className="bg-blue-50 p-2 rounded-full text-blue-600">
-                    <User size={20} />
+                      <User size={20} />
                     </div>
                     <div>
-                    <h3 className="font-bold text-gray-900 uppercase">{lead.nombre_completo}</h3>
-                    <p className="text-xs text-gray-500">{lead.telefono} | {lead.provincia}</p>
+                      <h3 className="font-bold text-gray-900 text-sm uppercase leading-tight">{lead.nombre_completo}</h3>
+                      <p className="text-[10px] text-gray-500">{lead.telefono} | {lead.provincia}</p>
                     </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2 bg-slate-50 p-3 rounded-lg border border-slate-100 text-[11px]">
+                    <div>
+                      <span className="text-gray-400 block uppercase font-bold">Situación Laboral:</span>
+                      <span className="text-slate-700 font-semibold">{lead.situacion?.replace(/_/g, ' ')}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-400 block uppercase font-bold">Estado de Pagos:</span>
+                      <span className="text-red-600 font-bold">{lead.situacion_pagos || 'No especificado'}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-400 block uppercase font-bold">Preocupación:</span>
+                      <span className="text-slate-700 italic">"{lead.preocupacion}"</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-400 block uppercase font-bold">Horario de Llamada:</span>
+                      <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-bold uppercase">
+                        {lead.horario_llamada}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-1.5 items-center">
+                    <span className="text-[9px] font-bold px-2 text-gray-400 uppercase text-center">WSP:</span>
+                    <div className="flex gap-1 bg-gray-50 p-1 rounded-lg border">
+                      {[1, 2, 3].map((n) => {
+                        const field = `w${n}`;
+                        const activo = lead[field];
+                        return (
+                          <button
+                            key={n}
+                            onClick={() => updateField(lead.id, field, !activo)}
+                            className={`w-7 h-7 rounded-md text-[9px] font-bold transition-all ${
+                              activo ? 'bg-green-500 text-white shadow-sm' : 'bg-white text-gray-400 border hover:bg-gray-100'
+                            }`}
+                          >
+                            W{n}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
                 </div>
 
-                <div className="flex gap-2 items-center bg-gray-50 p-1 rounded-lg border">
-                    <span className="text-[10px] font-bold px-2 text-gray-400">WS:</span>
-                    {[1, 2, 3].map((n) => {
-                    const field = `w${n}`;
-                    const activo = lead[field];
-                    return (
-                        <button
-                        key={n}
-                        onClick={() => updateField(lead.id, field, !activo)}
-                        className={`w-8 h-8 rounded-md text-[10px] font-bold transition-all ${
-                            activo ? 'bg-green-500 text-white shadow-sm' : 'bg-white text-gray-400 border hover:bg-gray-100'
-                        }`}
-                        >
-                        W{n}
-                        </button>
-                    )
-                    })}
-                </div>
+                {/* BOTONES Y SELECTORES PARA EL COMERCIAL */}
+                <div className="grid grid-cols-1 md:grid-cols-6 gap-4 border-t pt-4 items-end">
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[9px] font-bold text-gray-400 uppercase">Estado Actual</span>
+                    <select 
+                      value={lead.estado}
+                      onChange={(e) => updateField(lead.id, 'estado', e.target.value)}
+                      className="text-[11px] p-2 rounded border font-bold bg-white text-gray-700 border-gray-200 outline-none"
+                    >
+                      <option value="nuevo">Nuevo</option>
+                      <option value="en_llamada">📞 En Llamada</option>
+                      <option value="pendiente">⏳ Pendiente Doc</option>
+                      <option value="no_interesado">❌ No Interesado</option>
+                    </select>
+                  </div>
 
-                <button 
-                    onClick={() => cerrarVenta(lead.id)}
-                    className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition font-bold text-xs flex items-center gap-2 shadow-sm ml-auto"
-                >
-                    <CheckCircle size={14} /> CERRAR VENTA
-                </button>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 border-t pt-4">
-                
-                <div className="flex flex-col gap-1">
+                  <div className="flex flex-col gap-1">
                     <span className="text-[10px] font-bold text-gray-400 uppercase">Ingresos</span>
                     <div className="flex gap-1">
-                    {[1000, 1500, 2000].map((m) => (
+                      {[1000, 1500, 2000].map((m) => (
                         <button
-                        key={m}
-                        onClick={() => updateField(lead.id, 'ingresos', m)}
-                        className={`flex-1 py-1 rounded border text-[10px] font-bold transition ${
+                          key={m}
+                          onClick={() => updateField(lead.id, 'ingresos', m)}
+                          className={`flex-1 py-1 rounded border text-[10px] font-bold transition ${
                             lead.ingresos === m ? 'bg-blue-600 text-white border-blue-700' : 'bg-white text-gray-600 hover:bg-gray-50'
-                        }`}
+                          }`}
                         >
-                        {m}€
+                          {m}€
                         </button>
-                    ))}
+                      ))}
                     </div>
-                </div>
+                  </div>
 
-                <div className="flex flex-col gap-1">
-                    <span className="text-[10px] font-bold text-gray-400 uppercase">¿Embargos?</span>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[9px] font-bold text-gray-400 uppercase text-center">¿Embargos?</span>
                     <div className="flex gap-1">
-                    {['No', 'Sí'].map((op) => (
+                      {['No', 'Sí'].map((op) => (
                         <button
-                        key={op}
-                        onClick={() => updateField(lead.id, 'embargos', op)}
-                        className={`flex-1 py-1 rounded border text-[10px] font-bold transition ${
+                          key={op}
+                          onClick={() => updateField(lead.id, 'embargos', op)}
+                          className={`flex-1 py-1.5 rounded border text-[10px] font-bold transition ${
                             lead.embargos === op 
-                            ? (op === 'Sí' ? 'bg-orange-500 text-white border-orange-600' : 'bg-green-500 text-white border-green-600') 
-                            : 'bg-white text-gray-600 hover:bg-gray-50'
-                        }`}
+                              ? (op === 'Sí' ? 'bg-orange-500 text-white border-orange-600' : 'bg-green-500 text-white border-green-600') 
+                              : 'bg-white text-gray-600 hover:bg-gray-50'
+                          }`}
                         >
-                        {op}
+                          {op}
                         </button>
-                    ))}
+                      ))}
                     </div>
-                </div>
+                  </div>
 
-                <div className="flex flex-col gap-1">
-                    <span className="text-[10px] font-bold text-gray-400 uppercase">Estado</span>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[10px] font-bold text-gray-400 uppercase">Rango de Deuda</span>
                     <select 
-                    value={lead.estado}
-                    onChange={(e) => updateField(lead.id, 'estado', e.target.value)}
-                    className="text-[10px] p-1.5 rounded border bg-white font-bold text-gray-700"
+                      value={lead.importe_deuda ?? ""}
+                      onChange={(e) => updateField(lead.id, 'importe_deuda', e.target.value)}
+                      className="text-[10px] p-1.5 rounded border bg-white font-bold text-gray-700 border-gray-300"
                     >
-                    <option value="nuevo">Nuevo</option>
-                    <option value="en_llamada">En Llamada</option>
-                    <option value="pendiente">Pendiente Doc</option>
-                    <option value="no_interesado">No Interesado</option>
+                      <option value="menos_10000">Menos de 10.000€</option>
+                      <option value="entre_10.000_€_y_20.000_€">Entre 10.000€ - 20.000€</option>
+                      <option value="mas_20000">Más de 20.000€</option>
                     </select>
-                </div>
+                  </div>    
 
+                  <div className="flex justify-end lg:col-span-2">
+                    <button 
+                      onClick={() => cerrarVenta(lead.id)}
+                      className="bg-green-600 text-white px-5 py-2.5 rounded-lg hover:bg-green-700 transition font-bold text-xs flex items-center gap-2 shadow-sm w-full md:w-auto justify-center"
+                    >
+                      <CheckCircle size={14} /> CERRAR VENTA
+                    </button>
+                  </div>
                 </div>
-            </div>
+              </div>
             ))
           )}
         </div>
