@@ -31,7 +31,7 @@ export default function Login() {
   if (data.user) {
     localStorage.setItem('user_id', data.user.id);
     
-    const { data: perfil, error: perfilError } = await supabase
+    const { data: perfil, error: _perfilError } = await supabase
       .from('usuarios')
       .select('rol, nombre')
       .eq('id', data.user.id)
@@ -50,9 +50,10 @@ export default function Login() {
         router.push('/dashboard')
       }
     }
-    if (error) {
-      alert("Error de acceso: " + (error as any).message)
-      return
+    if (error && typeof error === 'object' && 'message' in error) {
+        alert("Error de acceso: " + (error as { message: string }).message);
+    } else {
+        alert("Error de acceso: Error desconocido");
     }
   }
 }
