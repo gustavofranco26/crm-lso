@@ -50,11 +50,6 @@ export default function Login() {
         router.push('/dashboard')
       }
     }
-    if (error && typeof error === 'object' && 'message' in error) {
-        alert("Error de acceso: " + (error as { message: string }).message);
-    } else {
-        alert("Error de acceso: Error desconocido");
-    }
   }
 }
 
