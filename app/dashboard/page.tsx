@@ -105,10 +105,10 @@ export default function Dashboard() {
 
   return (
     <div className="p-25 bg-gray-50 min-h-screen relative">
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-full mx-auto">
         <div className="flex justify-between items-left mb-8">
           <h1 className="text-3xl font-bold text-gray-800">Leads Activos - LSO</h1>
-          <button onClick={handleLogout}className="absolute bg-red-500 hover:bg-red-600 text-white text-xs font-bold py-2 px-4 rounded-lg transition-all uppercase shadow-sm right-4 top-4">
+          <button onClick={handleLogout}className="absolute bg-red-500 hover:bg-red-600 text-white text-xs font-bold py-5 px-4 rounded-lg transition-all shadow-sm right-4 top-4">
           Cerrar Sesión
           </button>
         </div>
@@ -117,54 +117,84 @@ export default function Dashboard() {
             <p className="text-gray-500 text-left py-10">No hay leads activos en este momento.</p>
           ) : (
               <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200 text-xs">
+                <table className="min-w-full divide-y divide-gray-200 text-[11px]">
                   <thead className="bg-slate-100">
                     <tr>
-                      <th className="px-2 py-3 text-left font-bold text-slate-600 uppercase">Lead</th>
-                      <th className="px-2 py-3 text-left font-bold text-slate-600 uppercase">Situación</th>
-                      <th className="px-2 py-3 text-left font-bold text-slate-600 uppercase">Deuda</th>
-                      <th className="px-2 py-3 text-left font-bold text-slate-600 uppercase">Pagos</th>
-                      <th className="px-2 py-3 text-left font-bold text-slate-600 uppercase">Ingresos</th>
-                      <th className="px-2 py-3 text-left font-bold text-slate-600 uppercase">Estado Lead</th>
-                      <th className="px-2 py-3 text-left font-bold text-slate-600 uppercase">Acción</th>
-                      <th className="px-2 py-3 text-left font-bold text-slate-600 uppercase">Cierre</th>
-                      <th className="px-2 py-3 text-left font-bold text-slate-600 uppercase">Próxima Acción</th>
-                      <th className="px-2 py-3 text-left font-bold text-slate-600 uppercase">Llamar Hora</th>
-                      <th className="px-2 py-3 text-left font-bold text-slate-600 uppercase">Cerrar Venta</th>
-                      <th className="px-2 py-3 text-left font-bold text-slate-600 uppercase">ID Lead</th>
-                      <th className="px-2 py-3 text-left font-bold text-slate-600 uppercase">Fecha Creación</th>
-                      <th className="px-2 py-3 text-left font-bold text-slate-600 uppercase">Última Actualización</th>
-                      <th className="px-2 py-3 text-left font-bold text-slate-600 uppercase">Asignado a</th>
-                      <th className="px-2 py-3 text-left font-bold text-slate-600 uppercase">Provincia</th>
-                      <th className="px-2 py-3 text-left font-bold text-slate-600 uppercase">Teléfono</th>
-                      <th className="px-2 py-3 text-left font-bold text-slate-600 uppercase">Email</th>
-                      <th className="px-2 py-3 text-left font-bold text-slate-600 uppercase">Nombre Cliente</th>
-                      <th className="px-2 py-3 text-left font-bold text-slate-600 uppercase">Situación Laboral</th>
-                      <th className="px-2 py-3 text-left font-bold text-slate-600 uppercase">Importe Deuda</th>
-                      <th className="px-2 py-3 text-left font-bold text-slate-600 uppercase">Estado Pagos</th>
-                      <th className="px-2 py-3 text-left font-bold text-slate-600 uppercase">Ingresos Mensuales</th>
-                      <th className="px-2 py-3 text-left font-bold text-slate-600 uppercase">Estado Lead</th>
-                      <th className="px-2 py-3 text-left font-bold text-slate-600 uppercase">Próxima Acción</th>
-                      <th className="px-2 py-3 text-left font-bold text-slate-600 uppercase">Hora Llamada</th>
+                      <th className="px-1 py-3 text-left font-bold text-slate-900">Estado Lead</th>
+                      <th className="px-1 py-3 text-left font-bold text-slate-900">Fecha Entrada</th> 
+                      <th className="px-1 py-3 text-left font-bold text-slate-900">Nombre Completo</th>
+                      <th className="px-1 py-3 text-left font-bold text-slate-900">Teléfono</th>
+                      <th className="px-1 py-3 text-left font-bold text-slate-900">Provincia</th>
+                      <th className="px-1 py-3 text-left font-bold text-slate-900">Situación</th>
+                      <th className="px-1 py-3 text-left font-bold text-slate-900">Deuda</th>                      
+                      <th className="px-1 py-3 text-left font-bold text-slate-900">Como vas con los pagos?</th>
+                      <th className="px-1 py-3 text-left font-bold text-slate-900">Embargos</th>
+                      <th className="px-1 py-3 text-left font-bold text-slate-900">Que te preocupa</th>
+                      <th className="px-1 py-3 text-left font-bold text-slate-900">Ingresos Mensuales</th>
+                      <th className="px-1 py-3 text-left font-bold text-slate-900">Vivienda Propiedad</th>
+                      <th className="px-1 py-3 text-left font-bold text-slate-900">Hipoteca</th>
+                      <th className="px-1 py-3 text-left font-bold text-slate-900">Deuda Pública</th>
+                      <th className="px-1 py-3 text-left font-bold text-slate-900">Llamar</th>
+                      <th className="px-1 py-3 text-left font-bold text-slate-900">Hora</th>
+                      <th className="px-1 py-3 text-left font-bold text-slate-900">Próxima Acción</th>
+                      <th className="px-1 py-3 text-left font-bold text-slate-900">Fecha Próxima Acción</th>
+                      <th className="px-1 py-3 text-left font-bold text-slate-900">Entrada</th>
+                      <th className="px-1 py-3 text-left font-bold text-slate-900">Fecha 1ra Cuota</th>
+                      <th className="px-1 py-3 text-left font-bold text-slate-900">Cuota</th>
+                      <th className="px-1 py-3 text-left font-bold text-slate-900">Total Cuotas</th>
+                      <th className="px-1 py-3 text-left font-bold text-slate-900">H.E. Firmada</th>
+                      <th className="px-1 py-3 text-left font-bold text-slate-900">Motivo No Cierre</th>
+                      <th className="px-1 py-3 text-center font-bold text-slate-900">-</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100">
                     {leads.map((lead) => (
-                      <tr key={lead.id} className="hover:bg-slate-50 transition-colors">
-                        {/* INFORMACIÓN BÁSICA */}
-                        <td className="px-2 py-4">
-                          <div className="font-bold text-slate-900 uppercase">{lead.nombre_completo || 'Sin nombre'}</div>
-                          <div className="text-slate-500">{lead.telefono}</div>
-                          <div className="text-[10px] text-blue-600 italic">{lead.provincia}</div>
+                      <tr key={lead.id} className="hover:bg-slate-50 transition-colors border-b">
+                        {/* 1. Estado Lead */}
+                        <td className="px-1 py-5">
+                          <select 
+                            value={lead.estado_lead || ''} 
+                            onChange={(e) => updateField(lead.id, 'estado_lead', e.target.value)}
+                            className="w-full p-1  font-bold text-green-600 bg-transparent"
+                          >
+                            <option value="">Nuevo</option>
+                            <option>Contactado</option>
+                            <option>Seguimiento</option>
+                            <option>Cita Agendado</option>
+                            <option>Link enviado</option>
+                            <option>Cerrado</option>
+                            <option>Perdido</option>
+                          </select>
                         </td>
-                        {/* SITUACIÓN LABORAL */}
-                        <td className="px-2 py-4">
+
+                        {/* 2. Fecha Entrada */}
+                        <td className="px-1 py-5 text-gray-400 whitespace-nowrap">
+                          {lead.fecha_creacion ? new Date(lead.fecha_creacion).toLocaleDateString() : '-'}
+                        </td>
+
+                        {/* 3. Nombre Completo */}
+                        <td className="px-1 py-5 font-bold text-slate-600 min-w-[120px]">
+                          {lead.nombre_completo || 'Sin nombre'}
+                        </td>
+
+                        {/* 4. Teléfono */}
+                        <td className="px-1 py-5 text-gray-600">
+                          {lead.telefono}
+                        </td>
+
+                        {/* 5. Provincia */}
+                        <td className="px-1 py-5 text-gray-600 italic">
+                          {lead.provincia}
+                        </td>
+
+                        {/* 6. Situación */}
+                        <td className="px-1 py-5">
                           <select 
                             value={lead.situacion || ''} 
                             onChange={(e) => updateField(lead.id, 'situacion', e.target.value)}
-                            className="w-full p-1 border rounded bg-white"
+                            className="w-full p-1 "
                           >
-                            <option value="">Seleccionar...</option>
+                            <option value="">-</option>
                             <option>Cuenta ajena</option>
                             <option>Autónomo</option>
                             <option>Desempleado</option>
@@ -172,13 +202,14 @@ export default function Dashboard() {
                           </select>
                         </td>
 
-                        {/* DEUDA */}
-                        <td className="px-2 py-4">
+                        {/* 7. Deuda */}
+                        <td className="px-1 py-5">
                           <select 
                             value={lead.importe_deuda || ''} 
                             onChange={(e) => updateField(lead.id, 'importe_deuda', e.target.value)}
-                            className="w-full p-1 border rounded font-medium"
+                            className="w-full p-1  font-semibold"
                           >
+                            <option value="">-</option>
                             <option>10k - 20k</option>
                             <option>20k - 30k</option>
                             <option>30k - 50k</option>
@@ -186,67 +217,218 @@ export default function Dashboard() {
                           </select>
                         </td>
 
-                        {/* ESTADO PAGOS */}
-                        <td className="px-2 py-4">
+                        {/* 8. Como vas con los pagos? */}
+                        <td className="px-1 py-5">
                           <select 
                             value={lead.estado_pagos || ''} 
                             onChange={(e) => updateField(lead.id, 'estado_pagos', e.target.value)}
-                            className="w-full p-1 border rounded"
+                            className="w-full p-1 "
                           >
-                            <option>Al día</option>
+                            <option value="">-</option>
+                            <option>Al día, justo</option>
                             <option>Atrasos</option>
-                            <option>No puede</option>
+                            <option>No puede pagar</option>
                           </select>
                         </td>
 
-                        {/* INGRESOS */}
-                        <td className="px-2 py-4">
+                        {/* 9. Embargos */}
+                        <td className="px-1 py-5 text-center">
+                          <select 
+                            value={lead.embargos || ''} 
+                            onChange={(e) => updateField(lead.id, 'embargos', e.target.value)}
+                            className={`w-full p-1  font-bold ${lead.embargos === 'Si' ? 'text-red-500' : ''}`}
+                          >
+                            <option value="No">No</option>
+                            <option value="Si">Si</option>
+                          </select>
+                        </td>
+
+                        {/* 10. Que te preocupa */}
+                        <td className="px-1 py-5">
+                          <select 
+                            value={lead.que_te_preocupa || ''} 
+                            onChange={(e) => updateField(lead.id, 'que_te_preocupa', e.target.value)}
+                            className="w-full p-1 "
+                          >
+                            <option value="">-</option>
+                            <option>No llego a pagar</option>
+                            <option>Llamadas</option>
+                            <option>Embargo</option>
+                            <option>Empezar de cero</option>
+                            <option>Otra</option>
+                          </select>
+                        </td>
+
+                        {/* 11. Ingresos Mensuales */}
+                        <td className="px-1 py-5">
                           <input 
                             type="text" 
-                            placeholder="€/mes"
                             value={lead.ingresos_mensuales || ''}
                             onChange={(e) => updateField(lead.id, 'ingresos_mensuales', e.target.value)}
-                            className="w-16 p-1 border rounded text-left"
+                            className="w-12 p-1  text-center"
+                            placeholder="€"
                           />
                         </td>
 
-                        {/* ESTADO LEAD */}
-                        <td className="px-2 py-4">
+                        {/* 12. Vivienda Propiedad */}
+                        <td className="px-1 py-5">
                           <select 
-                            value={lead.estado || 'Nuevo'} 
-                            onChange={(e) => updateField(lead.id, 'estado', e.target.value)}
-                            className="w-full p-1 border rounded font-bold text-blue-700 uppercase"
+                            value={lead.vivienda_propiedad || ''} 
+                            onChange={(e) => updateField(lead.id, 'vivienda_propiedad', e.target.value)}
+                            className="w-full p-1 "
                           >
-                            <option>Nuevo</option>
-                            <option>Contactado</option>
-                            <option>Seguimiento</option>
-                            <option>Cerrado</option>
-                            <option>Perdido</option>
+                            <option value="No">No</option>
+                            <option value="Si">Si</option>
                           </select>
                         </td>
 
-                        {/* PRÓXIMA ACCIÓN */}
-                        <td className="px-2 py-4">
-                          <div className="flex flex-col gap-1">
-                            <input 
-                              type="text" 
-                              placeholder="¿Qué hacer?"
-                              className="p-1 border rounded w-24"
-                              onChange={(e) => updateField(lead.id, 'proxima_accion', e.target.value)}
-                            />
-                            <input 
-                              type="text" 
-                              placeholder="Hora"
-                              className="p-1 border rounded w-24"
-                              onChange={(e) => updateField(lead.id, 'llamar_hora', e.target.value)}
-                            />
-                          </div>
+                        {/* 13. Hipoteca */}
+                        <td className="px-1 py-5">
+                          <input 
+                            type="text" 
+                            value={lead.hipoteca || ''}
+                            onChange={(e) => updateField(lead.id, 'hipoteca', e.target.value)}
+                            className="w-14 p-1  text-[10px]"
+                            placeholder="Importe"
+                          />
                         </td>
 
-                        {/* BOTÓN CIERRE */}
-                        <td className="px-2 py-4 text-left">
-                          <button className="bg-green-600 text-white px-3 py-2 rounded font-bold hover:bg-green-700 shadow-sm active:scale-95 transition-all uppercase tracking-tighter">
-                            Cerrar
+                        {/* 14. Deuda Pública */}
+                        <td className="px-1 py-5">
+                          <input 
+                            type="text" 
+                            value={lead.deuda_publica || ''}
+                            onChange={(e) => updateField(lead.id, 'deuda_publica', e.target.value)}
+                            className="w-14 p-1  text-[10px]"
+                            placeholder="Importe"
+                          />
+                        </td>
+
+                        {/* 15. Llamar (Momento) */}
+                        <td className="px-1 py-5">
+                          <select 
+                            value={lead.llamar_momento || ''} 
+                            onChange={(e) => updateField(lead.id, 'llamar_momento', e.target.value)}
+                            className="w-full p-1 "
+                          >
+                            <option value="">-</option>
+                            <option>Mañana</option>
+                            <option>Mediodía</option>
+                            <option>Tarde</option>
+                          </select>
+                        </td>
+
+                        {/* 16. Hora */}
+                        <td className="px-1 py-5">
+                          <input 
+                            type="text" 
+                            value={lead.llamar_hora || ''}
+                            onChange={(e) => updateField(lead.id, 'llamar_hora', e.target.value)}
+                            className="w-10 p-1  text-center"
+                            placeholder="00:00"
+                          />
+                        </td>
+
+                        {/* 17. Próxima Acción */}
+                        <td className="px-1 py-5">
+                          <input 
+                            type="text" 
+                            value={lead.proxima_accion || ''}
+                            onChange={(e) => updateField(lead.id, 'proxima_accion', e.target.value)}
+                            className="w-20 p-1 "
+                            placeholder="Acción..."
+                          />
+                        </td>
+
+                        {/* 18. Fecha Próxima Acción */}
+                        <td className="px-1 py-5">
+                          <input 
+                            type="text" 
+                            value={lead.fecha_proxima_accion || ''}
+                            onChange={(e) => updateField(lead.id, 'fecha_proxima_accion', e.target.value)}
+                            className="w-16 p-1  text-[10px]"
+                            placeholder="DD/MM"
+                          />
+                        </td>
+
+                        {/* 19. Entrada */}
+                        <td className="px-1 py-5">
+                          <select 
+                            value={lead.entrada_importe || ''} 
+                            onChange={(e) => updateField(lead.id, 'entrada_importe', e.target.value)}
+                            className="w-full p-1  font-bold"
+                          >
+                            <option value="">-</option>
+                            <option>1000</option>
+                            <option>500</option>
+                            <option>300</option>
+                          </select>
+                        </td>
+
+                        {/* 20. Fecha 1ra Cuota */}
+                        <td className="px-1 py-5">
+                          <input 
+                            type="text" 
+                            value={lead.fecha_primera_cuota || ''}
+                            onChange={(e) => updateField(lead.id, 'fecha_primera_cuota', e.target.value)}
+                            className="w-16 p-1  text-[10px]"
+                          />
+                        </td>
+
+                        {/* 21. Cuota */}
+                        <td className="px-1 py-5">
+                          <select 
+                            value={lead.cuota_importe || ''} 
+                            onChange={(e) => updateField(lead.id, 'cuota_importe', e.target.value)}
+                            className="w-full p-1 "
+                          >
+                            <option value="">-</option>
+                            <option>1000</option><option>500</option><option>400</option>
+                            <option>300</option><option>200</option>
+                          </select>
+                        </td>
+
+                        {/* 22. Total Cuotas */}
+                        <td className="px-1 py-5 text-center">
+                          <input 
+                            type="text" 
+                            value={lead.total_cuotas || ''}
+                            onChange={(e) => updateField(lead.id, 'total_cuotas', e.target.value)}
+                            className="w-8 p-1  text-center"
+                          />
+                        </td>
+
+                        {/* 23. H.E. Firmada */}
+                        <td className="px-1 py-5 text-center">
+                          <select 
+                            value={lead.he_firmada || 'No'} 
+                            onChange={(e) => updateField(lead.id, 'he_firmada', e.target.value)}
+                            className={`w-full p-1  font-bold ${lead.he_firmada === 'Si' ? 'bg-green-100 text-green-700' : 'bg-red-50 text-red-700'}`}
+                          >
+                            <option value="No">No</option>
+                            <option value="Si">Si</option>
+                          </select>
+                        </td>
+
+                        {/* 24. Motivo No Cierre */}
+                        <td className="px-1 py-5">
+                          <select 
+                            value={lead.motivo_no_cierre || ''} 
+                            onChange={(e) => updateField(lead.id, 'motivo_no_cierre', e.target.value)}
+                            className="w-full p-1  text-[10px]"
+                          >
+                            <option value="">-</option>
+                            <option>Precio</option>
+                            <option>Miedo</option>
+                            <option>No contacto</option>
+                            <option>Deuda baja</option>
+                          </select>
+                        </td>
+
+                        {/* 25. Botón Acción */}
+                        <td className="px-1 py-5 text-center">
+                          <button className="bg-green-600 text-white px-2 py-1 rounded text-[10px] font-bold hover:bg-green-700 shadow-sm transition-all active:scale-95">
+                            CERRAR
                           </button>
                         </td>
                       </tr>
