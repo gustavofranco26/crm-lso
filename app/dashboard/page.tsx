@@ -160,7 +160,7 @@ export default function Dashboard() {
                   </thead>
                   <tbody className="divide-y divide-gray-100">
                     {leads.map((lead) => (
-                      <tr key={lead.id} className="hover:bg-slate-50 transition-colors border-b text-gray-500">
+                      <tr key={lead.id} className="hover:bg-slate-50 transition-colors border-b text-gray-800">
                         {/* 1. Estado Lead */}
                         <td className="px-1 py-10">
                           <select 
@@ -182,8 +182,8 @@ export default function Dashboard() {
                         </td>
 
                         {/* 2. Fecha Entrada, con formato sin year.*/}
-                        <td className="px-1 py-5 text-gray-500 whitespace-nowrap text-[14px]">
-                          {lead.fecha_creacion ? new Date(lead.fecha_creacion).toLocaleDateString('es-ES', {day: '2-digit', month: '2-digit' }) : '-'}
+                        <td className="px-1 py-5 text-gray-600 whitespace-nowrap text-[14px]">
+                          {lead.fecha_creacion ? new Date(lead.fecha_creacion).toLocaleDateString('es-ES', {day: '2-digit', month: 'short' } ).toUpperCase(-2) : '-'}
                         </td>
 
                         {/* 3. Nombre Completo */}
