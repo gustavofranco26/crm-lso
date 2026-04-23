@@ -177,13 +177,12 @@ export default function Dashboard() {
                             <option value="Perdido" className="text-red-600 bg-red-100">Perdido</option>
                             <option value="Cita Agendada" className="text-purple-600 bg-purple-50">Cita-Agendada</option>
                             <option value="Link Enviado" className="text-cyan-600 bg-cyan-50">Link-Enviado</option>
-                            
                           </select>
                         </td>
 
                         {/* 2. Fecha Entrada, con formato sin year.*/}
                         <td className="px-1 py-5 text-gray-600 whitespace-nowrap text-[14px]">
-                          {lead.fecha_creacion ? new Date(lead.fecha_creacion).toLocaleDateString('es-ES', {day: '2-digit', month: 'short' } ).toUpperCase(-2) : '-'}
+                          {lead.fecha_creacion ? new Date(lead.fecha_creacion).toLocaleDateString('es-ES', {day: '2-digit', month: 'short' } ).toUpperCase() : '-'}
                         </td>
 
                         {/* 3. Nombre Completo */}
