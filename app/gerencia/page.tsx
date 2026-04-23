@@ -77,12 +77,12 @@ export default function PanelGerencia() {
         <div className="flex-1 text-center font-bold text-2xl tracking-[0.2em] ml-20">
           VISTA - RESUMEN GERENCIA
         </div>
-        <Link href="/dashboard/nuevo" className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+        <Link href="/dashboard/nuevo" className="bg-gray-600 text-white  px-4 py-3 rounded-lg hover:bg-blue-700 transition">
           + Nuevo Lead
         </Link>
         <button 
           onClick={handleLogout}
-          className="bg-red-500 hover:bg-red-600 text-white text-xs font-bold py-2 px-4 rounded-lg transition-all uppercase shadow-sm"
+          className="bg-red-500 hover:bg-red-600 text-white text-white font-bold px-2 py-3 rounded-lg transition-all uppercase shadow-sm"
         >
           Cerrar Sesión
         </button>
@@ -102,16 +102,16 @@ export default function PanelGerencia() {
           <tbody>
             {leads.length === 0 ? (
               <tr>
-                <td colSpan={6} className="text-center p-10 text-gray-400">No hay leads registrados todavía.</td>
+                <td colSpan={6} className="text-center p-10 text-gray-800">No hay leads registrados todavía.</td>
               </tr>
             ) : (
               leads.map((l) => (
-                <tr key={l.id} className="text-center hover:bg-slate-50">
-                  <td className="border border-gray-400 p-2 uppercase italic">{l.nombre_completo}</td>
-                  <td className="border border-gray-400 p-2 bg-[#fff2cc]">{l.provincia}</td>
+                <tr key={l.id} className="text-center hover:bg-slate-100">
+                  <td className="border border-gray-400 p-2 text-gray-600 font-bold ">{l.nombre_completo}</td>
+                  <td className="border border-gray-400 p-2 text-gray-600 font-bold bg-[#fff2cc]">{l.provincia}</td>
                   <td className="border border-gray-400 p-2 text-red-600 font-bold">{l.deuda_publica || '0'}€</td>
-                  <td className="border border-gray-400 p-2 font-bold">{l.ingresos || '0'}€</td>
-                  <td className="border border-gray-400 p-2 uppercase font-bold italic">{l.estado}</td>
+                  <td className="border border-gray-400 p-2 font-bold text-gray-600 font-bold">{l.ingresos || '0'}€</td>
+                  <td className="border border-gray-400 p-2 font-bold text-gray-600 font-bold">{l.estado}</td>
                   <td className="border border-gray-400 p-2">
                     <button onClick={() => handleAsignar(l.id)} className="bg-blue-500 text-white px-2 py-1 rounded text-[10px] hover:bg-blue-600 transition-colors">
                       Asignar

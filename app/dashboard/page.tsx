@@ -5,6 +5,15 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { User, Phone, MapPin, CheckCircle, Loader2 } from 'lucide-react'
 
+const ESTADO_COLORS = {
+  'Nuevo': 'text-gray-500 bg-gray-50',
+  'Contactado': 'text-blue-600 bg-blue-50',
+  'Seguimiento': 'text-orange-500 bg-orange-50',
+  'Cerrado': 'text-green-600 bg-green-100',
+  'Perdido': 'text-red-600 bg-red-100',
+  'Cita Agendada': 'text-purple-600 bg-purple-50',
+  'Link Enviado': 'text-cyan-600 bg-cyan-50',
+};
 
 export default function Dashboard() {
   const router = useRouter()
@@ -50,38 +59,40 @@ export default function Dashboard() {
 }
 
   async function cerrarVenta(leadId: string) {
-  const comercialId = localStorage.getItem('user_id')
-  if (!comercialId) {
-    alert("Error: No se ha identificado al usuario. Por favor, vuelve a iniciar sesión.")
-    return
+    const rawId = localStorage.getItem('user_id')
+    const comercialId = rawId?.replace(/['"]+/g, '')
+
+    if (!comercialId) {
+      alert("Error: No se ha identificado al usuario. Por favor, vuelve a iniciar sesión.")
+      return
+    }
+
+    const confirmacion = confirm("¿Confirmas que se ha realizado el pago y quieres cerrar esta venta?")
+    if (!confirmacion) return
+
+    const { error: err1 } = await supabase
+      .from('leads')
+      .update({ estado: 'cerrado' })
+      .eq('id', leadId)
+
+
+    const { error: err2 } = await supabase
+      .from('comisiones')
+      .insert([{ 
+        id_usuario: comercialId,
+        id_lead: leadId, 
+        monto: 40 // Comisión fija de 40€ por venta cerrada.
+      }])
+
+    if (err1 || err2) {
+      console.error("Error al cerrar venta:", err1 || err2)
+      alert("Hubo un error al procesar el cierre.")
+      return
+    }
+
+    alert("¡Venta cerrada con éxito!")
+    fetchLeads()
   }
-
-  const confirmacion = confirm("¿Confirmas que se ha realizado el pago y quieres cerrar esta venta?")
-  if (!confirmacion) return
-
-  const { error: err1 } = await supabase
-    .from('leads')
-    .update({ estado: 'cerrado' })
-    .eq('id', leadId)
-
-
-  const { error: err2 } = await supabase
-    .from('comisiones')
-    .insert([{ 
-      id_usuario: comercialId,
-      id_lead: leadId, 
-      monto: 40 // Comisión fija de 40€ por venta cerrada.
-    }])
-
-  if (err1 || err2) {
-    console.error("Error al cerrar venta:", err1 || err2)
-    alert("Hubo un error al procesar el cierre.")
-    return
-  }
-
-  alert("¡Venta cerrada con éxito!")
-  fetchLeads()
-}
 
 
   const updateField = async(id: string, field: string, value: any) => {
@@ -104,11 +115,11 @@ export default function Dashboard() {
   if (loading) return <div className="flex justify-left mt-20"><Loader2 className="animate-spin" /></div>
 
   return (
-    <div className="p-25 bg-gray-50 min-h-screen relative">
+    <div className="p-5 bg-gray-50 min-h-screen absolute w-full ">
       <div className="max-w-full mx-auto">
         <div className="flex justify-between items-left mb-8">
           <h1 className="text-3xl font-bold text-gray-800">Leads Activos - LSO</h1>
-          <button onClick={handleLogout}className="absolute bg-red-500 hover:bg-red-600 text-white text-xs font-bold py-5 px-4 rounded-lg transition-all shadow-sm right-4 top-4">
+          <button onClick={handleLogout}className="absolute bg-red-500 hover:bg-red-600 text-white text-xs font-bold py-5 px-4 rounded-lg transition-all shadow-sm right-3 top-4">
           Cerrar Sesión
           </button>
         </div>
@@ -118,7 +129,7 @@ export default function Dashboard() {
           ) : (
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200 text-[11px]">
-                  <thead className="bg-slate-100">
+                  <thead className="bg-slate-50">
                     <tr>
                       <th className="px-1 py-3 text-left font-bold text-slate-900">Estado Lead</th>
                       <th className="px-1 py-3 text-left font-bold text-slate-900">Fecha Entrada</th> 
@@ -149,27 +160,30 @@ export default function Dashboard() {
                   </thead>
                   <tbody className="divide-y divide-gray-100">
                     {leads.map((lead) => (
-                      <tr key={lead.id} className="hover:bg-slate-50 transition-colors border-b">
+                      <tr key={lead.id} className="hover:bg-slate-50 transition-colors border-b text-gray-500">
                         {/* 1. Estado Lead */}
-                        <td className="px-1 py-5">
+                        <td className="px-1 py-9">
                           <select 
-                            value={lead.estado_lead || ''} 
-                            onChange={(e) => updateField(lead.id, 'estado_lead', e.target.value)}
-                            className="w-full p-1  font-bold text-green-600 bg-transparent"
+                            value={lead.estado_pagos || 'Nuevo'} 
+                            onChange={(e) => updateField(lead.id, 'estado_pagos', e.target.value)}
+                            className={`p-1 font-bold text-[10px] rounded border-none appearance-none cursor-pointer ${
+                              ESTADO_COLORS[lead.estado_pagos as keyof typeof ESTADO_COLORS] || 'text-gray-500 bg-gray-50'
+                            }`}
                           >
-                            <option value="">Nuevo</option>
-                            <option>Contactado</option>
-                            <option>Seguimiento</option>
-                            <option>Cita Agendado</option>
-                            <option>Link enviado</option>
-                            <option>Cerrado</option>
-                            <option>Perdido</option>
+                            <option value="Nuevo" className="text-gray-500 bg-gray-50">Nuevo</option>
+                            <option value="Contactado" className="text-blue-600 bg-blue-50">Contactado</option>
+                            <option value="Seguimiento" className="text-orange-500 bg-orange-50">Seguimiento</option>
+                            <option value="Cerrado" className="text-green-600 bg-green-100">Cerrado</option>
+                            <option value="Perdido" className="text-red-600 bg-red-100">Perdido</option>
+                            <option value="Cita Agendada" className="text-purple-600 bg-purple-50">Cita Agendada</option>
+                            <option value="Link Enviado" className="text-cyan-600 bg-cyan-50">Link Enviado</option>
+                            
                           </select>
                         </td>
 
-                        {/* 2. Fecha Entrada */}
-                        <td className="px-1 py-5 text-gray-400 whitespace-nowrap">
-                          {lead.fecha_creacion ? new Date(lead.fecha_creacion).toLocaleDateString() : '-'}
+                        {/* 2. Fecha Entrada, con formato sin year.*/}
+                        <td className="px-1 py-5 text-gray-400 whitespace-nowrap text-[10px]">
+                          {lead.fecha_creacion ? new Date(lead.fecha_creacion).toLocaleDateString('es-ES', {day: '2-digit', month: '2-digit' }) : '-'}
                         </td>
 
                         {/* 3. Nombre Completo */}
@@ -285,11 +299,11 @@ export default function Dashboard() {
                         {/* 13. Hipoteca */}
                         <td className="px-1 py-5">
                           <input 
-                            type="text" 
+                            type="text"
                             value={lead.hipoteca || ''}
                             onChange={(e) => updateField(lead.id, 'hipoteca', e.target.value)}
                             className="w-14 p-1  text-[10px]"
-                            placeholder="Importe"
+                            placeholder="€"
                           />
                         </td>
 
@@ -376,7 +390,7 @@ export default function Dashboard() {
                         </td>
 
                         {/* 21. Cuota */}
-                        <td className="px-1 py-5">
+                        <td className="px-1 py-4">
                           <select 
                             value={lead.cuota_importe || ''} 
                             onChange={(e) => updateField(lead.id, 'cuota_importe', e.target.value)}
@@ -427,7 +441,8 @@ export default function Dashboard() {
 
                         {/* 25. Botón Acción */}
                         <td className="px-1 py-5 text-center">
-                          <button className="bg-green-600 text-white px-2 py-1 rounded text-[10px] font-bold hover:bg-green-700 shadow-sm transition-all active:scale-95">
+                          <button onClick={() => cerrarVenta(lead.id)}
+                          className="bg-green-600 text-white px-2 py-1 rounded text-[10px] font-bold hover:bg-green-700 shadow-sm transition-all active:scale-95">
                             CERRAR
                           </button>
                         </td>
