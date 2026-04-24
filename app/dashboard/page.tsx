@@ -20,6 +20,11 @@ export default function Dashboard() {
   const [leads, setLeads] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
+  const [filtroEstado, setFiltroEstado] = useState('Todos los estados');
+  const [filtroProvincia, setFiltroProvincia] = useState('Todas las provincias');
+  const [busqueda, setBusqueda] = useState('');
+ 
+
   const handleLogout = async () => {
     await supabase.auth.signOut()
     localStorage.clear()
@@ -111,18 +116,68 @@ export default function Dashboard() {
     }
   };
 
+  const leadsFiltrados = leads.filter(lead => {
+    const coincideEstado = filtroEstado === 'Todos los estados' || lead.estado_pagos === filtroEstado;
+    const coincideProvincia = filtroProvincia === 'Todas las provincias' || lead.provincia === filtroProvincia;
+    const coincideBusqueda = lead.nombre_completo?.toLowerCase().includes(busqueda.toLowerCase()) || 
+                            lead.telefono?.includes(busqueda);
 
-  if (loading) return <div className="flex justify-left mt-20"><Loader2 className="animate-spin" /></div>
+    return coincideEstado && coincideProvincia && coincideBusqueda;
+  });
 
   return (
     <div className="p-5 bg-gray-50 min-h-screen absolute w-full ">
       <div className="max-w-full mx-auto">
-        <div className="flex justify-between items-left mb-8">
+        <div className="flex justify-between items-left mb-4">
           <h1 className="text-3xl font-bold text-gray-800">Leads Activos - LSO</h1>
-          <button onClick={handleLogout}className="absolute bg-red-500 hover:bg-red-600 text-white text-xs font-bold py-5 px-4 rounded-lg transition-all shadow-sm right-3 top-4">
+          <button onClick={handleLogout}className="absolute bg-red-500 hover:bg-red-600 text-white text-xs font-bold py-5 px-4 rounded-lg transition-all shadow-sm right-4 top-4">
           Cerrar Sesión
           </button>
         </div>
+        {loading ? (
+        <div className="flex justify-left mt-20">
+          <Loader2 className="animate-spin" />
+        </div>
+      ) : (
+        <div className="flex flex-wrap items-center justify-between gap-4 mb-6 bg-white p-4 rounded-lg shadow-sm">
+          <div className="flex flex-wrap items-center gap-3">
+            <select 
+              value={filtroEstado}
+              onChange={(e) => setFiltroEstado(e.target.value)}
+              className="border border-slate-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option>Todos los estados</option>
+              <option>Nuevo</option>
+              <option>Contactado</option>
+              <option>Seguimiento</option>
+              <option>Cita Agendada</option>
+              <option>Link enviado</option>
+            </select>
+            <select 
+              value={filtroProvincia}
+              onChange={(e) => setFiltroProvincia(e.target.value)}
+              className="border border-slate-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option>Todas las provincias</option>
+              <option>Barcelona</option>
+              <option>Sevilla</option>
+              <option>Murcia</option>
+              <option>Valencia</option>
+            </select>
+            <div className="relative">
+              <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
+              </span>
+              <input 
+                type="text"
+                placeholder="Buscar..."
+                value={busqueda}
+                onChange={(e) => setBusqueda(e.target.value)}
+                className="pl-5 pr-4 py-2 border border-slate-300 rounded-md text-sm w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          </div>
+        </div>
+      )}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 overflow-hidden">
           {leads.length === 0 ? (
             <p className="text-gray-500 text-left py-10">No hay leads activos en este momento.</p>
@@ -159,7 +214,7 @@ export default function Dashboard() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100">
-                    {leads.map((lead) => (
+                    {leadsFiltrados.map((lead) => (
                       <tr key={lead.id} className="hover:bg-slate-50 transition-colors border-b text-gray-800">
                         {/* 1. Estado Lead */}
                         <td className="px-1 py-10">
