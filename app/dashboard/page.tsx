@@ -160,9 +160,14 @@ export default function Dashboard() {
             >
               <option>Todas las provincias</option>
               <option>Barcelona</option>
+              <option>Madrid</option>
+              <option>Valencia</option>
               <option>Sevilla</option>
               <option>Murcia</option>
-              <option>Valencia</option>
+              <option>Zaragoza</option>
+              <option>Málaga</option>
+              <option>Palma de Mallorca</option>
+              <option>Others</option>
             </select>
             <div className="relative">
               <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">

@@ -78,7 +78,7 @@ export default function PanelGerencia() {
           VISTA - RESUMEN GERENCIA
         </div>
         <Link href="/dashboard/nuevo" className="bg-gray-600 text-white  px-4 py-3 rounded-lg hover:bg-blue-700 transition">
-          + Nuevo Lead
+          Nuevo Lead
         </Link>
         <button 
           onClick={handleLogout}
