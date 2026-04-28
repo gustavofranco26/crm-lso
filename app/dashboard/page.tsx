@@ -99,6 +99,26 @@ export default function Dashboard() {
     fetchLeads()
   }
 
+  const calcularPlanPagos = (entrada: string, cuotaPersonalizada?: string) => {
+  const TOTAL_LSO = 5200;
+  const valorEntrada = parseInt(entrada || '0');
+  const saldoPendiente = TOTAL_LSO - valorEntrada;
+  
+  if (saldoPendiente <= 0) return { cuota: '', cantidad: '' };
+
+  // Si no nos pasan una cuota, usamos 500 por defecto
+  let cuotaSugerida = cuotaPersonalizada ? parseInt(cuotaPersonalizada) : 500;
+  
+  const cantidadCuotasNormales = Math.floor(saldoPendiente / cuotaSugerida);
+  const cuotaFinal = saldoPendiente % cuotaSugerida;
+
+  const totalCuotas = cuotaFinal > 0 ? cantidadCuotasNormales + 1 : cantidadCuotasNormales;
+
+  return {
+    cuota: cuotaSugerida.toString(),
+    cantidad: totalCuotas.toString()
+  };
+};
 
   const updateField = async(id: string, field: string, value: any) => {
     // Refresh veloz, aunque el cambio real se confirmará con la respuesta del servidor.
@@ -164,6 +184,9 @@ export default function Dashboard() {
               <option>Sevilla</option>
               <option>Murcia</option>
               <option>Valencia</option>
+              <option>Madrid</option>
+              <option>Granada</option>
+              <option>Otros...</option>
             </select>
             <div className="relative">
               <input 
@@ -316,13 +339,24 @@ export default function Dashboard() {
                     <td className="px-1 py-5">
                       <select 
                         value={lead.entrada_importe || ''} 
-                        onChange={(e) => updateField(lead.id, 'entrada_importe', e.target.value)}
-                        className="w-40 p-1 font-semibold"
+                        onChange={(e) => {
+                          const nuevaEntrada = e.target.value;
+                          updateField(lead.id, 'entrada_importe', nuevaEntrada);
+                          
+                          // Al cambiar entrada, reseteamos a cuota de 500 por defecto
+                          const plan = calcularPlanPagos(nuevaEntrada);
+                          updateField(lead.id, 'cuota_importe', plan.cuota);
+                          updateField(lead.id, 'total_cuotas', plan.cantidad);
+                        }}
+                        className="w-40 p-1 font-semibold outline-none border rounded"
                       >
                         <option value="">-</option>
+                        <option value="3000">3000</option>
+                        <option value="2000">2000</option>
+                        <option value="1500">1500</option>
                         <option value="1000">1000</option>
                         <option value="500">500</option>
-                        <option value="250">250</option>
+                        <option value="300">300</option>
                       </select>
                     </td>
                     <td className="px-1 py-5">
@@ -333,26 +367,31 @@ export default function Dashboard() {
                         className="border rounded px-2 py-1.5 text-xs w-30 outline-none"
                       />
                     </td>
-                    <td className="px-1 py-4">
+                    <td className="px-1 py-5">
                       <select 
-                        value={lead.cuota_importe || ''} 
-                        onChange={(e) => updateField(lead.id, 'cuota_importe', e.target.value)}
-                        className="w-full p-1 font-semibold"
+                        value={lead.cuota_importe || ''}
+                        onChange={(e) => {
+                          const nuevaCuota = e.target.value;
+                          updateField(lead.id, 'cuota_importe', nuevaCuota);
+                          
+                          // Recalculamos el TOTAL de cuotas basado en esta nueva mensualidad
+                          const plan = calcularPlanPagos(lead.entrada_importe, nuevaCuota);
+                          updateField(lead.id, 'total_cuotas', plan.cantidad);
+                        }}
+                        className="w-24 p-1 font-semibold border rounded outline-none"
                       >
-                        <option value="">-</option>
-                        <option value="1000">1000</option>
                         <option value="500">500</option>
-                        <option value="400">400</option>
                         <option value="300">300</option>
-                        <option value="200">200</option>
+                        <option value="250">250</option>
                       </select>
                     </td>
                     <td className="px-1 py-5">
                       <input 
                         type="text" 
+                        readOnly // Evita que lo cambien a mano y rompan la lógica
                         value={lead.total_cuotas || ''}
-                        onChange={(e) => updateField(lead.id, 'total_cuotas', e.target.value)}
-                        className="w-20 p-1 font-semibold"
+                        className="w-16 p-1 text-center font-bold bg-gray-50 border-none" 
+                        placeholder="Nº"
                       />
                     </td>
                     <td className="px-1 py-5 text-center">
