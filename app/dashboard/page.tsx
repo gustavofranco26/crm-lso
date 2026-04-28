@@ -3,23 +3,23 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
-import { User, Phone, MapPin, CheckCircle, Loader2 } from 'lucide-react'
+import { User, Phone, MapPin, CheckCircle, Loader2, Search, LogOut } from 'lucide-react'
 
 const ESTADO_COLORS = {
-  'Nuevo': 'text-gray-500 bg-gray-50',
-  'Contactado': 'text-blue-600 bg-blue-50',
-  'Seguimiento': 'text-orange-500 bg-orange-50',
-  'Cerrado': 'text-green-600 bg-green-100 leading-tight',
-  'Perdido': 'text-red-600 bg-red-100 leading-tight',
-  'Cita Agendada': 'text-purple-600 bg-purple-50',
-  'Link Enviado': 'text-cyan-600 bg-cyan-50',
+  'Nuevo': 'border border-gray-400 text-gray-500 bg-gray-50',
+  'Contactado': ' border border-blue-400 text-blue-600 bg-blue-50',
+  'Seguimiento': 'border border-orange-400 text-orange-500 bg-orange-50',
+  'Cerrado': 'border border-green-400 text-green-600 bg-green-100 leading-tight',
+  'Perdido': 'border border-red-400 text-red-600 bg-red-100 leading-tight',
+  'Cita Agendada': 'border border-purple-400 text-purple-600 bg-purple-50',
+  'Link Enviado': 'border border-cyan-400 text-cyan-600 bg-cyan-50',
 };
 
 export default function Dashboard() {
   const router = useRouter()
   const [leads, setLeads] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
-
+  const [selectedLead, setSelectedLead] = useState<any>(null)
   const [filtroEstado, setFiltroEstado] = useState('Todos los estados');
   const [filtroProvincia, setFiltroProvincia] = useState('Todas las provincias');
   const [busqueda, setBusqueda] = useState('');
@@ -64,40 +64,46 @@ export default function Dashboard() {
 }
 
   async function cerrarVenta(leadId: string) {
-    const rawId = localStorage.getItem('user_id')
-    const comercialId = rawId?.replace(/['"]+/g, '')
+    const rawId = localStorage.getItem('user_id');
+    const comercialId = rawId?.replace(/['"]+/g, '');
 
     if (!comercialId) {
-      alert("Error: No se ha identificado al usuario. Por favor, vuelve a iniciar sesión.")
-      return
+        alert("Error: Usuario no identificado.");
+        return;
     }
 
-    const confirmacion = confirm("¿Confirmas que se ha realizado el pago?")
-    if (!confirmacion) return
+    const confirmacion = confirm("¿Confirmas que se ha realizado el pago?");
+    if (!confirmacion) return;
 
+    // 1. Actualizamos el estado del lead
     const { error: err1 } = await supabase
-      .from('leads')
-      .update({ estado: 'cerrado' })
-      .eq('id', leadId)
+        .from('leads')
+        .update({ estado: 'cerrado' })
+        .eq('id', leadId);
 
-
+    // 2. Insertamos la comisión
     const { error: err2 } = await supabase
-      .from('comisiones')
-      .insert([{ 
-        id_usuario: comercialId,
-        id_lead: leadId, 
-        monto: 40 // Comisión fija de 40€ por venta cerrada.
-      }])
+        .from('comisiones')
+        .insert([{ 
+            id_usuario: comercialId,
+            id_lead: leadId, 
+            monto: 40 
+        }]);
 
     if (err1 || err2) {
-      console.error("Error al cerrar venta:", err1 || err2)
-      alert("Hubo un error al procesar el cierre.")
-      return
+        console.error("Error al cerrar venta:", err1 || err2);
+        alert("Hubo un error al procesar el cierre.");
+        return;
     }
 
-    alert("¡Venta cerrada con éxito!")
-    fetchLeads()
-  }
+    alert("¡Venta cerrada con éxito!");
+    
+    // 3. Importante: Limpiamos el lead seleccionado para que desaparezca el panel derecho
+    setSelectedLead(null); 
+    
+    // 4. Refrescamos la lista general
+    fetchLeads();
+}
 
   const calcularPlanPagos = (entrada: string, cuotaPersonalizada?: string) => {
   const TOTAL_LSO = 5200;
@@ -123,18 +129,10 @@ export default function Dashboard() {
   const updateField = async(id: string, field: string, value: any) => {
     // Refresh veloz, aunque el cambio real se confirmará con la respuesta del servidor.
     setLeads(prev => prev.map(l => l.id === id ? { ...l, [field]: value } : l))
-
-    const { error } = await supabase
-      .from('leads')
-      .update({ [field]: value })
-      .eq('id', id)
-
-    if (error) {
-      console.error("Error actualizando campo:", error.message)
-      // Revertir cambio en UI si hay error, para revertir cambio local.
-      fetchLeads()
-    }
-  };
+    if (selectedLead?.id === id) setSelectedLead((prev: any) => ({ ...prev, [field]: value }))
+    const { error } = await supabase.from('leads').update({ [field]: value }).eq('id', id)
+    if (error) fetchLeads()
+  }
 
   const leadsFiltrados = leads.filter(lead => {
     const coincideEstado = filtroEstado === 'Todos los estados' || lead.estado_pagos === filtroEstado;
@@ -146,306 +144,203 @@ export default function Dashboard() {
   });
 
   return (
-  <div className="p-5 bg-gray-50 min-h-screen absolute w-full ">
-    <div className="max-w-500 mx-auto">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-3xl font-bold text-gray-800">Logo Defendor</h1>
-        <button onClick={handleLogout} className="absolute bg-red-500 hover:bg-red-600 text-white text-xs font-bold py-5 px-4 rounded-lg transition-all shadow-sm right-4 top-4">
-          Cerrar Sesión
-        </button>
-      </div>
-
-      {loading ? (
-        <div className="flex justify-center mt-20">
-          <Loader2 className="animate-spin" />
+  <div className="flex flex-col h-screen bg-slate-100 font-sans overflow-hidden">
+    {/* 1. SECCIÓN SUPERIOR: FILTROS DE COLORES */}
+      <header className="bg-white border-b p-4 flex items-center justify-between shadow-sm z-10">
+        <div className="flex gap-3 overflow-x-auto pb-2 md:pb-0">
+          {Object.entries(ESTADO_COLORS).map(([name, colorClass]) => (
+            <button
+              key={name}
+              onClick={() => setFiltroEstado(name)}
+              className={`px-4 py-2 rounded-lg border-2 font-bold text-xs transition-all active:scale-95 whitespace-nowrap ${colorClass} ${filtroEstado === name ? 'ring-2 ring-offset-1 ring-blue-400' : 'opacity-70'}`}
+            >
+              {name.toUpperCase()}
+            </button>
+          ))}
+          <button onClick={() => setFiltroEstado('Todos los estados')} className="px-4 py-2 rounded-lg border-2 border-slate-300 text-slate-500 font-bold text-xs">TODOS</button>
         </div>
-      ) : (
-        <div className="flex flex-wrap items-center justify-between gap-4 mb-6 bg-white p-4 rounded-lg shadow-sm">
-          <div className="flex flex-wrap items-center gap-3">
-            <select 
-              value={filtroEstado} 
-              onChange={(e) => setFiltroEstado(e.target.value)}
-              className="border border-slate-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option>Todos los estados</option>
-              <option>Nuevo</option>
-              <option>Contactado</option>
-              <option>Seguimiento</option>
-              <option>Cita Agendada</option>
-              <option>Link enviado</option>
-            </select>
-            <select 
-              value={filtroProvincia} 
-              onChange={(e) => setFiltroProvincia(e.target.value)}
-              className="border border-slate-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option>Todas las provincias</option>
-              <option>Barcelona</option>
-              <option>Sevilla</option>
-              <option>Murcia</option>
-              <option>Valencia</option>
-              <option>Madrid</option>
-              <option>Granada</option>
-              <option>Otros...</option>
-            </select>
+        <button onClick={handleLogout} className="flex items-center gap-2 bg-red-50 text-red-600 px-4 py-2 rounded-lg font-bold text-xs hover:bg-red-100 transition-colors">
+          <LogOut size={16} /> SALIR
+        </button>
+      </header>
+
+      {/* CUERPO PRINCIPAL */}
+      <main className="flex flex-1 overflow-hidden">
+        
+        {/* 2. IZQUIERDA (SIDEBAR): LISTA DE CLIENTES */}
+        <div className="w-80 bg-white border-r flex flex-col shadow-inner">
+          <div className="p-4 border-b space-y-2">
             <div className="relative">
+              <Search className="absolute left-3 top-2.5 text-slate-400" size={16} />
               <input 
-                type="text" 
-                placeholder="Buscar..." 
-                value={busqueda} 
-                onChange={(e) => setBusqueda(e.target.value)}
-                className="pl-5 pr-4 py-2 border border-slate-300 rounded-md text-sm w-64 focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                type="text" placeholder="Buscar cliente..." 
+                className="w-full pl-10 pr-4 py-2 bg-slate-50 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                value={busqueda} onChange={(e) => setBusqueda(e.target.value)}
               />
             </div>
           </div>
+          <div className="flex-1 overflow-y-auto">
+            {loading ? <div className="p-10 flex justify-center"><Loader2 className="animate-spin text-blue-500" /></div> : 
+              leadsFiltrados.map(lead => (
+                <div 
+                  key={lead.id}
+                  onClick={() => setSelectedLead(lead)}
+                  className={`p-4 border-b cursor-pointer transition-colors hover:bg-slate-50 ${selectedLead?.id === lead.id ? 'bg-blue-50 border-l-4 border-blue-500' : ''}`}
+                >
+                  <div className="flex justify-between items-start mb-1">
+                    <h3 className="font-bold text-slate-800 text-sm truncate w-40">{lead.nombre_completo}</h3>
+                    <span className="text-[10px] font-bold text-slate-400 uppercase">{new Date(lead.fecha_creacion).toLocaleDateString('es-ES', {day:'2-digit', month:'short'})}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${ESTADO_COLORS[lead.estado_pagos as keyof typeof ESTADO_COLORS] || 'bg-slate-100 text-slate-500'}`}>
+                      {lead.estado_pagos}
+                    </span>
+                    <span className="text-[11px] text-slate-500 italic">{lead.provincia}</span>
+                  </div>
+                </div>
+              ))
+            }
+          </div>
         </div>
-      )}
 
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 overflow-hidden">
-        {leads.length === 0 ? (
-          <p className="text-gray-500 text-center py-10">No hay leads activos en este momento.</p>
+        {/* 3. DERECHA: PANEL DE DETALLE (SECCIÓN MEDIA Y DERECHA) */}
+        {selectedLead ? (
+          <div className="flex-1 flex overflow-hidden">
+            
+            {/* SECCIÓN MEDIA: DATOS PERSONALES (AZUL) */}
+            <section className="w-1/3 p-6 overflow-y-auto bg-white border-r">
+              <div className="flex items-center gap-2 mb-6 border-b-2 border-blue-500 pb-2">
+                <div className="bg-blue-500 p-2 rounded-lg text-white"><User size={20}/></div>
+                <h2 className="text-lg font-bold text-slate-800">Datos del Lead</h2>
+              </div>
+              
+              <div className="space-y-4">
+                {[
+                  { label: 'Estado Llamada', field: 'estado_pagos', type: 'select', options: ['Nuevo', 'Contactado', 'Seguimiento', 'Cerrado', 'Perdido', 'Cita Agendada', 'Link Enviado'] },
+                  { label: 'Servicio', field: 'servicio_interes', type: 'select', options: ['-', 'Servicio 1', 'Servicio 2', 'Servicio 3'] },
+                  { label: 'Teléfono', value: selectedLead.telefono },
+                  { label: 'Provincia', value: selectedLead.provincia },
+                  { label: 'Momento para llamar', value: selectedLead.llamar_momento },
+                  { label: 'Horario', value: selectedLead.horario_llamada },
+                  { label: 'Situación Laboral', value: selectedLead.situacion },
+                  { label: 'Importe Deuda', value: selectedLead.importe_deuda },
+                  { label: 'Preocupación', value: selectedLead.preocupacion },
+                  { label: 'Embargos', field: 'embargos', type: 'select', options: ['No', 'Si'] },
+                ].map((item, idx) => (
+                  <div key={idx} className="flex flex-col border-b border-slate-100 pb-2">
+                    <span className="text-[10px] font-bold text-blue-500 uppercase tracking-wider">{item.label}</span>
+                    {item.type === 'select' ? (
+                      <select 
+                        value={selectedLead[item.field!] || ''} 
+                        onChange={(e) => updateField(selectedLead.id, item.field!, e.target.value)}
+                        className="text-sm font-semibold bg-transparent outline-none mt-1"
+                      >
+                        {item.options?.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                      </select>
+                    ) : (
+                      <span className="text-sm font-semibold text-slate-700 mt-1">{item.value || '-'}</span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* SECCIÓN DERECHA: DATOS ECONÓMICOS (VERDE) */}
+            <section className="flex-1 p-6 overflow-y-auto bg-slate-50">
+              <div className="flex items-center gap-2 mb-6 border-b-2 border-green-500 pb-2">
+                <div className="bg-green-600 p-2 rounded-lg text-white"><CheckCircle size={20}/></div>
+                <h2 className="text-lg font-bold text-slate-800">Cálculo LSO & Pagos</h2>
+              </div>
+
+              <div className="grid grid-cols-2 gap-6 bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                <div className="flex flex-col gap-1">
+                  <label className="text-[10px] font-bold text-green-600 uppercase">Ingresos Mensuales</label>
+                  <input type="text" value={selectedLead.ingresos_mensuales || ''} onChange={(e) => updateField(selectedLead.id, 'ingresos_mensuales', e.target.value)} className="border rounded p-2 text-sm font-bold w-full bg-slate-50" placeholder="€"/>
+                </div>
+                
+                <div className="flex flex-col gap-1">
+                  <label className="text-[10px] font-bold text-green-600 uppercase">Vivienda Propia</label>
+                  <select value={selectedLead.vivienda_propiedad || 'No'} onChange={(e) => updateField(selectedLead.id, 'vivienda_propiedad', e.target.value)} className="border rounded p-2 text-sm font-bold bg-slate-50">
+                    <option value="No">No</option>
+                    <option value="Si">Si</option>
+                  </select>
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <label className="text-[10px] font-bold text-green-600 uppercase">Entrada</label>
+                  <select 
+                    value={selectedLead.entrada_importe || ''} 
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      updateField(selectedLead.id, 'entrada_importe', v);
+                      const plan = calcularPlanPagos(v);
+                      updateField(selectedLead.id, 'cuota_importe', plan.cuota);
+                      updateField(selectedLead.id, 'total_cuotas', plan.cantidad);
+                    }}
+                    className="border-2 border-green-200 rounded p-2 text-sm font-bold bg-green-50"
+                  >
+                    <option value="">-</option>
+                    {['3000','2000','1500','1000','500','300'].map(v => <option key={v} value={v}>{v}€</option>)}
+                  </select>
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <label className="text-[10px] font-bold text-green-600 uppercase">Cuota Mensual</label>
+                  <select 
+                    value={selectedLead.cuota_importe || ''}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      updateField(selectedLead.id, 'cuota_importe', v);
+                      const plan = calcularPlanPagos(selectedLead.entrada_importe, v);
+                      updateField(selectedLead.id, 'total_cuotas', plan.cantidad);
+                    }}
+                    className="border-2 border-green-200 rounded p-2 text-sm font-bold bg-green-50"
+                  >
+                    <option value="500">500</option>
+                    <option value="300">300</option>
+                    <option value="250">250</option>
+                  </select>
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <label className="text-[10px] font-bold text-green-600 uppercase">Nº de Cuotas Totales</label>
+                  <input type="text" readOnly value={selectedLead.total_cuotas || ''} className="border rounded p-2 text-sm font-black text-center bg-gray-100 text-slate-800"/>
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <label className="text-[10px] font-bold text-green-600 uppercase">Fecha 1ª Cuota</label>
+                  <input type="date" value={selectedLead.fecha_primera_cuota || ''} onChange={(e) => updateField(selectedLead.id, 'fecha_primera_cuota', e.target.value)} className="border rounded p-2 text-sm font-bold bg-slate-50"/>
+                </div>
+
+                <div className="col-span-2 mt-4 pt-4 border-t border-slate-100 flex justify-between items-center">
+                  <div className="flex gap-4">
+                    <div className="flex flex-col">
+                       <label className="text-[10px] font-bold text-slate-400">HE FIRMADA</label>
+                       <select value={selectedLead.he_firmada || 'No'} onChange={(e) => updateField(selectedLead.id, 'he_firmada', e.target.value)} className={`font-bold text-sm outline-none ${selectedLead.he_firmada === 'Si' ? 'text-green-600' : 'text-red-500'}`}><option value="No">No</option><option value="Si">Si</option></select>
+                    </div>
+                    <div className="flex flex-col">
+                       <label className="text-[10px] font-bold text-slate-400">RECOMENDADO</label>
+                       <select value={selectedLead.recomendado || 'No'} onChange={(e) => updateField(selectedLead.id, 'recomendado', e.target.value)} className={`font-bold text-sm outline-none ${selectedLead.recomendado === 'Si' ? 'text-green-600' : 'text-red-500'}`}><option value="No">No</option><option value="Si">Si</option></select>
+                    </div>
+                  </div>
+                  
+                  <button 
+                    onClick={() => cerrarVenta(selectedLead.id)}
+                    className="bg-orange-500 text-white px-6 py-3 rounded-xl font-black text-sm hover:bg-orange-600 shadow-lg shadow-orange-200 transition-all active:scale-95"
+                  >
+                    MARCAR CONTRATADO
+                  </button>
+                </div>
+              </div>
+            </section>
+          </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-gray-200 text-[14px] border-separate border-spacing-y-0">
-              {leadsFiltrados.map((lead) => (
-                <tbody key={lead.id} className="border-b-2 border-gray-200">
-                  {/* ENCABEZADO 1: DATOS PERSONALES */}
-                  <tr className=" bg-blue-200">
-                    <th className="px-1 py-1 text-center font-bold text-slate-950 leading-tight">Fecha</th>
-                    <th className="px-1 py-1 text-center font-bold text-slate-950 leading-tight">Estado</th>
-                    <th className="px-1 py-1 text-center font-bold text-slate-950 leading-tight">Servicio</th>
-                    <th className="px-1 py-1 text-center font-bold text-slate-950 leading-tight">Llamar</th>
-                    <th className="px-1 py-1 text-center font-bold text-slate-950 leading-tight">Hora</th>
-                    <th className="px-1 py-1 text-center font-bold text-slate-950 leading-tight">Nombre Completo</th>
-                    <th className="px-1 py-1 text-center font-bold text-slate-950 leading-tight">Teléfono</th>
-                    <th className="px-1 py-1 text-center font-bold text-slate-950 leading-tight">Provincia</th>
-                    <th className="px-1 py-1 text-center font-bold text-slate-950 leading-tight">Laboral</th>
-                    <th className="px-1 py-1 text-center font-bold text-slate-950 leading-tight">I. Deuda</th>
-                    <th className="px-1 py-1 text-center font-bold text-slate-950 leading-tight">Pagos?</th>
-                    <th className="px-1 py-1 text-center font-bold text-slate-950 leading-tight">Embargos</th>
-                    <th className="px-1 py-1 text-center font-bold text-slate-950 leading-tight">Preocupación</th>
-                  </tr>
-                  
-                  {/* FILA 1: VALORES PERSONALES */}
-                  <tr className="hover:bg-slate-50 text-gray-800 border-b border-gray-100 leading-tight text-center">
-                    <td className="px-1 py-1 text-gray-600">
-                      {lead.fecha_creacion 
-                        ? new Date(lead.fecha_creacion)
-                            .toLocaleDateString('es-ES', { day: '2-digit', month: 'short' })
-                            .replace(/^\w/, (c) => c.toUpperCase())
-                            .replace('.', '')
-                        : '-'}
-                    </td>
-                    <td className="px-1 py-1">
-                      <select 
-                        value={lead.estado_pagos || 'Nuevo'} 
-                        onChange={(e) => updateField(lead.id, 'estado_pagos', e.target.value)}
-                        className={`p-1 font-bold rounded border-none cursor-pointer ${ESTADO_COLORS[lead.estado_pagos as keyof typeof ESTADO_COLORS] || 'text-gray-500 bg-gray-50'}`}
-                      >
-                        <option value="Nuevo">Nuevo</option>
-                        <option value="Contactado">Contactado</option>
-                        <option value="Seguimiento">Seguimiento</option>
-                        <option value="Cerrado">Cerrado</option>
-                        <option value="Perdido">Perdido</option>
-                        <option value="Cita Agendada">Cita-Agendada</option>
-                        <option value="Link Enviado">Link-Enviado</option>
-                      </select>
-                    </td>
-                    <td className="px-1 py-1">
-                      <select 
-                        value={lead.servicio_interes || '-'} 
-                        onChange={(e) => updateField(lead.id, 'servicio_interes', e.target.value)}
-                        className="p-1 font-bold rounded border-none cursor-pointer bg-white text-gray-800"
-                      >
-                        <option value="-">-</option>
-                        <option value="Servicio 1">Lso</option>
-                        <option value="Servicio 2">Negociación B.</option>
-                        <option value="Servicio 3">Otros</option>
-                      </select>
-                    </td>
-                    <td className="px-1 py-1">{lead.llamar_momento || '-'}</td>
-                    <td className="px-1 py-1">{lead.horario_llamada || '-'}</td>
-                    <td className="px-1 py-1 font-bold text-slate-600">{lead.nombre_completo || ''}</td>
-                    <td className="px-1 py-1">{lead.telefono || ''}</td>
-                    <td className="px-1 py-1 italic">{lead.provincia || ''}</td>
-                    <td className="px-1 py-1">{lead.situacion || ''}</td>
-                    <td className="px-1 py-1">{lead.importe_deuda || ''}</td>
-                    <td className="px-1 py-1">{lead.situacion_pagos || ''}</td>
-                    <td className="px-1 py-1 text-center">
-                      <select 
-                        value={lead.embargos || 'No'} 
-                        onChange={(e) => updateField(lead.id, 'embargos', e.target.value)}
-                        className={`px-2 py-1 w-full font-bold ${lead.embargos === 'Si' ? 'text-red-500' : ''}`}
-                      >
-                        <option value="No">No</option>
-                        <option value="Si">Si</option>
-                      </select>
-                    </td>
-                    <td className="px-1 py-1">{lead.preocupacion || ''}</td>
-                  </tr>
-
-                  {/* ENCABEZADO 2: DATOS ECONÓMICOS */}
-                  <tr className="bg-green-200">
-                    <th className="px-1 py-1 text-center font-bold text-slate-950 leading-tight">Ingresos</th>
-                    <th className="px-1 py-1 text-center font-bold text-slate-950 leading-tight">Vivienda</th>
-                    <th className="px-1 py-1 text-center font-bold text-slate-950 leading-tight">Hipoteca</th>
-                    <th className="px-1 py-1 text-center font-bold text-slate-950 leading-tight">D.Púb.</th>
-                    <th className="px-1 py-1 text-center font-bold text-slate-950 leading-tight">Entrada</th>
-                    <th className="px-1 py-1 text-center font-bold text-slate-950 leading-tight">Fecha1ªC.</th>
-                    <th className="px-1 py-1 text-center font-bold text-slate-950 leading-tight">Cuota</th>
-                    <th className="px-1 py-1 text-center font-bold text-slate-950 leading-tight">T.Cuotas</th>
-                    <th className="px-1 py-1 text-center font-bold text-slate-950 leading-tight">H.E.</th>
-                    <th className="px-1 py-1 text-center font-bold text-slate-950 leading-tight">Motivo NC</th>
-                    <th className="px-1 py-1 text-center font-bold text-slate-950 leading-tight">Recomendado?</th>
-                    <th className="px-1 py-1 text-center font-bold text-slate-950 leading-tight"></th>
-                  </tr>
-
-                  {/* FILA 2: VALORES ECONÓMICOS */}
-                  <tr className="hover:bg-slate-50 transition-colors text-gray-800 text-center">
-                    <td className="px-1 py-5">
-                      <input 
-                        type="text" 
-                        value={lead.ingresos_mensuales || ''}
-                        onChange={(e) => updateField(lead.id, 'ingresos_mensuales', e.target.value)}
-                        className="w-20 p-1 text-center font-semibold" placeholder="€"
-                      />
-                    </td>
-                    <td className="px-1 py-5">
-                      <select 
-                        value={lead.vivienda_propiedad || 'No'} 
-                        onChange={(e) => updateField(lead.id, 'vivienda_propiedad', e.target.value)}
-                        className="w-20 p-1 font-semibold"
-                      >
-                        <option value="No">No</option>
-                        <option value="Si">Si</option>
-                      </select>
-                    </td>
-                    <td className="px-1 py-5">
-                      <input 
-                        type="text" 
-                        value={lead.hipoteca || ''}
-                        onChange={(e) => updateField(lead.id, 'hipoteca', e.target.value)}
-                        className="w-20 p-1" placeholder="€"
-                      />
-                    </td>
-                    <td className="px-1 py-5">
-                      <input 
-                        type="text" 
-                        value={lead.deuda_publica || ''}
-                        onChange={(e) => updateField(lead.id, 'deuda_publica', e.target.value)}
-                        className="w-20 p-1" placeholder="Importe"
-                      />
-                    </td>
-                    <td className="px-1 py-5">
-                      <select 
-                        value={lead.entrada_importe || ''} 
-                        onChange={(e) => {
-                          const nuevaEntrada = e.target.value;
-                          updateField(lead.id, 'entrada_importe', nuevaEntrada);
-                          
-                          // Al cambiar entrada, reseteamos a cuota de 500 por defecto
-                          const plan = calcularPlanPagos(nuevaEntrada);
-                          updateField(lead.id, 'cuota_importe', plan.cuota);
-                          updateField(lead.id, 'total_cuotas', plan.cantidad);
-                        }}
-                        className="w-40 p-1 font-semibold outline-none border rounded"
-                      >
-                        <option value="">-</option>
-                        <option value="3000">3000</option>
-                        <option value="2000">2000</option>
-                        <option value="1500">1500</option>
-                        <option value="1000">1000</option>
-                        <option value="500">500</option>
-                        <option value="300">300</option>
-                      </select>
-                    </td>
-                    <td className="px-1 py-5">
-                      <input 
-                        type="date" 
-                        value={lead.fecha_primera_cuota || ''}
-                        onChange={(e) => updateField(lead.id, 'fecha_primera_cuota', e.target.value)}
-                        className="border rounded px-2 py-1.5 text-xs w-30 outline-none"
-                      />
-                    </td>
-                    <td className="px-1 py-5">
-                      <select 
-                        value={lead.cuota_importe || ''}
-                        onChange={(e) => {
-                          const nuevaCuota = e.target.value;
-                          updateField(lead.id, 'cuota_importe', nuevaCuota);
-                          
-                          // Recalculamos el TOTAL de cuotas basado en esta nueva mensualidad
-                          const plan = calcularPlanPagos(lead.entrada_importe, nuevaCuota);
-                          updateField(lead.id, 'total_cuotas', plan.cantidad);
-                        }}
-                        className="w-24 p-1 font-semibold border rounded outline-none"
-                      >
-                        <option value="500">500</option>
-                        <option value="300">300</option>
-                        <option value="250">250</option>
-                      </select>
-                    </td>
-                    <td className="px-1 py-5">
-                      <input 
-                        type="text" 
-                        readOnly // Evita que lo cambien a mano y rompan la lógica
-                        value={lead.total_cuotas || ''}
-                        className="w-16 p-1 text-center font-bold bg-gray-50 border-none" 
-                        placeholder="Nº"
-                      />
-                    </td>
-                    <td className="px-1 py-5 text-center">
-                      <select 
-                        value={lead.he_firmada || 'No'} 
-                        onChange={(e) => updateField(lead.id, 'he_firmada', e.target.value)}
-                        className={`w-full p-1 font-bold ${lead.he_firmada === 'Si' ? 'bg-green-100 leading-tight text-green-700' : 'bg-red-50 text-red-700'}`}
-                      >
-                        <option value="No">No</option>
-                        <option value="Si">Si</option>
-                      </select>
-                    </td>
-                    <td className="px-1 py-5">
-                      <select 
-                        value={lead.motivo_no_cierre || ''} 
-                        onChange={(e) => updateField(lead.id, 'motivo_no_cierre', e.target.value)}
-                        className="w-full p-1 font-semibold"
-                      >
-                        <option value="">-</option>
-                        <option>Precio</option>
-                        <option>Miedo</option>
-                        <option>No contacto</option>
-                        <option>Deuda baja</option>
-                      </select>
-                    </td>
-                    <td className="px-1 py-5 text-center">
-                      <select 
-                        value={lead.recomendado || 'No'} 
-                        onChange={(e) => updateField(lead.id, 'recomendado', e.target.value)}
-                        className={`w-full p-1 font-bold ${lead.recomendado === 'Si' ? 'bg-green-100 leading-tight text-green-700' : 'bg-red-50 text-red-700'}`}
-                      >
-                        <option value="No">No</option>
-                        <option value="Si">Si</option>
-                      </select>
-                    </td>
-                    <td className="px-1 py-5 text-center">
-                      <button 
-                        onClick={() => cerrarVenta(lead.id)}
-                        className="bg-orange-300 text-black px-2 py-1 rounded text-[16px] font-bold hover:bg-orange-400 shadow-sm transition-all active:scale-95"
-                      >
-                        Contratado
-                      </button>
-                    </td>
-                  </tr>
-                  
-                  {/* ESPACIO ENTRE LEADS */}
-                  <tr className="h-10"><td colSpan={12} className="bg-gray-50"></td></tr>
-                </tbody>
-              ))}
-            </table>
+          <div className="flex-1 flex flex-col items-center justify-center text-slate-400 bg-slate-50">
+            <Loader2 size={48} className="mb-4 opacity-20" />
+            <p className="font-medium">Selecciona un cliente de la lista para ver los detalles</p>
           </div>
         )}
-      </div>
+      </main>
     </div>
-  </div>
-)
+  )
 }
