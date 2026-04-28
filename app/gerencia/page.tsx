@@ -82,7 +82,7 @@ export default function PanelGerencia() {
         </Link>
         <button 
           onClick={handleLogout}
-          className="bg-red-500 hover:bg-red-600 text-white text-white font-bold px-2 py-3 rounded-lg transition-all uppercase shadow-sm"
+          className="bg-red-500 hover:bg-red-600 text-white font-bold px-2 py-3 rounded-lg transition-all uppercase shadow-sm"
         >
           Cerrar Sesión
         </button>
@@ -110,8 +110,8 @@ export default function PanelGerencia() {
                   <td className="border border-gray-400 p-2 text-gray-600 font-bold ">{l.nombre_completo}</td>
                   <td className="border border-gray-400 p-2 text-gray-600 font-bold bg-[#fff2cc]">{l.provincia}</td>
                   <td className="border border-gray-400 p-2 text-red-600 font-bold">{l.deuda_publica || '0'}€</td>
-                  <td className="border border-gray-400 p-2 font-bold text-gray-600 font-bold">{l.ingresos || '0'}€</td>
-                  <td className="border border-gray-400 p-2 font-bold text-gray-600 font-bold">{l.estado}</td>
+                  <td className="border border-gray-400 p-2 text-gray-600 font-bold">{l.ingresos || '0'}€</td>
+                  <td className="border border-gray-400 p-2 text-gray-600 font-bold">{l.estado}</td>
                   <td className="border border-gray-400 p-2">
                     <button onClick={() => handleAsignar(l.id)} className="bg-blue-500 text-white px-2 py-1 rounded text-[10px] hover:bg-blue-600 transition-colors">
                       Asignar

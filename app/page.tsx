@@ -57,7 +57,7 @@ export default function Login() {
     <div className="min-h-screen flex items-center justify-center bg-slate-50 font-sans">
       <form onSubmit={manejarLogin} className="bg-white p-10 rounded-2xl shadow-xl w-full max-w-md border border-slate-100">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-extrabold text-blue-900 mb-2 italic">LSO CRM</h1>
+          <h1 className="text-4xl font-extrabold text-blue-900 mb-2 italic">DefenCore - CRM</h1>
           <p className="text-slate-500 uppercase tracking-widest text-xs">Acceso Profesionales</p>
         </div>
         
