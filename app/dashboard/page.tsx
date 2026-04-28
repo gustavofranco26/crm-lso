@@ -9,8 +9,8 @@ const ESTADO_COLORS = {
   'Nuevo': 'text-gray-500 bg-gray-50',
   'Contactado': 'text-blue-600 bg-blue-50',
   'Seguimiento': 'text-orange-500 bg-orange-50',
-  'Cerrado': 'text-green-600 bg-green-100',
-  'Perdido': 'text-red-600 bg-red-100',
+  'Cerrado': 'text-green-600 bg-green-100 leading-tight',
+  'Perdido': 'text-red-600 bg-red-100 leading-tight',
   'Cita Agendada': 'text-purple-600 bg-purple-50',
   'Link Enviado': 'text-cyan-600 bg-cyan-50',
 };
@@ -72,7 +72,7 @@ export default function Dashboard() {
       return
     }
 
-    const confirmacion = confirm("¿Confirmas que se ha realizado el pago y quieres cerrar esta venta?")
+    const confirmacion = confirm("¿Confirmas que se ha realizado el pago?")
     if (!confirmacion) return
 
     const { error: err1 } = await supabase
@@ -129,7 +129,7 @@ export default function Dashboard() {
   <div className="p-5 bg-gray-50 min-h-screen absolute w-full ">
     <div className="max-w-500 mx-auto">
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-3xl font-bold text-gray-800">Luis Ramos Valcárcel</h1>
+        <h1 className="text-3xl font-bold text-gray-800">Logo Defendor</h1>
         <button onClick={handleLogout} className="absolute bg-red-500 hover:bg-red-600 text-white text-xs font-bold py-5 px-4 rounded-lg transition-all shadow-sm right-4 top-4">
           Cerrar Sesión
         </button>
@@ -187,25 +187,31 @@ export default function Dashboard() {
               {leadsFiltrados.map((lead) => (
                 <tbody key={lead.id} className="border-b-2 border-gray-200">
                   {/* ENCABEZADO 1: DATOS PERSONALES */}
-                  <tr className="bg-blue-400">
-                    <th className="px-1 py-3 text-center font-bold text-slate-100">Fecha</th>
-                    <th className="px-1 py-3 text-center font-bold text-slate-100">Estado</th>
-                    <th className="px-1 py-3 text-center font-bold text-slate-100">Llamar</th>
-                    <th className="px-1 py-3 text-center font-bold text-slate-100">Hora</th>
-                    <th className="px-1 py-3 text-center font-bold text-slate-100">Nombre Completo</th>
-                    <th className="px-1 py-3 text-center font-bold text-slate-100">Teléfono</th>
-                    <th className="px-1 py-3 text-center font-bold text-slate-100">Provincia</th>
-                    <th className="px-1 py-3 text-center font-bold text-slate-100">Laboral</th>
-                    <th className="px-1 py-3 text-center font-bold text-slate-100">I. Deuda</th>
-                    <th className="px-1 py-3 text-center font-bold text-slate-100">Pagos?</th>
-                    <th className="px-1 py-3 text-center font-bold text-slate-100">Embargos</th>
-                    <th className="px-1 py-3 text-center font-bold text-slate-100">Preocupación</th>
+                  <tr className=" bg-blue-200">
+                    <th className="px-1 py-1 text-center font-bold text-slate-950 leading-tight">Fecha</th>
+                    <th className="px-1 py-1 text-center font-bold text-slate-950 leading-tight">Estado</th>
+                    <th className="px-1 py-1 text-center font-bold text-slate-950 leading-tight">Servicio</th>
+                    <th className="px-1 py-1 text-center font-bold text-slate-950 leading-tight">Llamar</th>
+                    <th className="px-1 py-1 text-center font-bold text-slate-950 leading-tight">Hora</th>
+                    <th className="px-1 py-1 text-center font-bold text-slate-950 leading-tight">Nombre Completo</th>
+                    <th className="px-1 py-1 text-center font-bold text-slate-950 leading-tight">Teléfono</th>
+                    <th className="px-1 py-1 text-center font-bold text-slate-950 leading-tight">Provincia</th>
+                    <th className="px-1 py-1 text-center font-bold text-slate-950 leading-tight">Laboral</th>
+                    <th className="px-1 py-1 text-center font-bold text-slate-950 leading-tight">I. Deuda</th>
+                    <th className="px-1 py-1 text-center font-bold text-slate-950 leading-tight">Pagos?</th>
+                    <th className="px-1 py-1 text-center font-bold text-slate-950 leading-tight">Embargos</th>
+                    <th className="px-1 py-1 text-center font-bold text-slate-950 leading-tight">Preocupación</th>
                   </tr>
                   
                   {/* FILA 1: VALORES PERSONALES */}
-                  <tr className="hover:bg-slate-50 text-gray-800 border-b border-gray-100 text-center">
-                    <td className="px-1 py-3 text-gray-600 uppercase">
-                      {lead.fecha_creacion ? new Date(lead.fecha_creacion).toLocaleDateString('es-ES', {day: '2-digit', month: 'short' }).toUpperCase() : '-'}
+                  <tr className="hover:bg-slate-50 text-gray-800 border-b border-gray-100 leading-tight text-center">
+                    <td className="px-1 py-1 text-gray-600">
+                      {lead.fecha_creacion 
+                        ? new Date(lead.fecha_creacion)
+                            .toLocaleDateString('es-ES', { day: '2-digit', month: 'short' })
+                            .replace(/^\w/, (c) => c.toUpperCase())
+                            .replace('.', '')
+                        : '-'}
                     </td>
                     <td className="px-1 py-1">
                       <select 
@@ -222,15 +228,27 @@ export default function Dashboard() {
                         <option value="Link Enviado">Link-Enviado</option>
                       </select>
                     </td>
-                    <td className="px-1 py-3">{lead.llamar_momento || '-'}</td>
-                    <td className="px-1 py-3">{lead.horario_llamada || '-'}</td>
-                    <td className="px-1 py-3 font-bold text-slate-600">{lead.nombre_completo || ''}</td>
-                    <td className="px-1 py-3">{lead.telefono || ''}</td>
-                    <td className="px-1 py-3 italic">{lead.provincia || ''}</td>
-                    <td className="px-1 py-3">{lead.situacion || ''}</td>
-                    <td className="px-1 py-3">{lead.importe_deuda || ''}</td>
-                    <td className="px-1 py-3">{lead.situacion_pagos || ''}</td>
-                    <td className="px-1 py-3 text-center">
+                    <td className="px-1 py-1">
+                      <select 
+                        value={lead.servicio_interes || '-'} 
+                        onChange={(e) => updateField(lead.id, 'servicio_interes', e.target.value)}
+                        className="p-1 font-bold rounded border-none cursor-pointer bg-white text-gray-800"
+                      >
+                        <option value="-">-</option>
+                        <option value="Servicio 1">Lso</option>
+                        <option value="Servicio 2">Negociación B.</option>
+                        <option value="Servicio 3">Otros</option>
+                      </select>
+                    </td>
+                    <td className="px-1 py-1">{lead.llamar_momento || '-'}</td>
+                    <td className="px-1 py-1">{lead.horario_llamada || '-'}</td>
+                    <td className="px-1 py-1 font-bold text-slate-600">{lead.nombre_completo || ''}</td>
+                    <td className="px-1 py-1">{lead.telefono || ''}</td>
+                    <td className="px-1 py-1 italic">{lead.provincia || ''}</td>
+                    <td className="px-1 py-1">{lead.situacion || ''}</td>
+                    <td className="px-1 py-1">{lead.importe_deuda || ''}</td>
+                    <td className="px-1 py-1">{lead.situacion_pagos || ''}</td>
+                    <td className="px-1 py-1 text-center">
                       <select 
                         value={lead.embargos || 'No'} 
                         onChange={(e) => updateField(lead.id, 'embargos', e.target.value)}
@@ -240,23 +258,23 @@ export default function Dashboard() {
                         <option value="Si">Si</option>
                       </select>
                     </td>
-                    <td className="px-1 py-3">{lead.preocupacion || ''}</td>
+                    <td className="px-1 py-1">{lead.preocupacion || ''}</td>
                   </tr>
 
                   {/* ENCABEZADO 2: DATOS ECONÓMICOS */}
-                  <tr className="bg-green-700">
-                    <th className="px-1 py-3 text-center font-bold text-slate-100">Ingresos</th>
-                    <th className="px-1 py-3 text-center font-bold text-slate-100">Vivienda</th>
-                    <th className="px-1 py-3 text-center font-bold text-slate-100">Hipoteca</th>
-                    <th className="px-1 py-3 text-center font-bold text-slate-100">D.Púb.</th>
-                    <th className="px-1 py-3 text-center font-bold text-slate-100">Entrada</th>
-                    <th className="px-1 py-3 text-center font-bold text-slate-100">Fecha1ªC.</th>
-                    <th className="px-1 py-3 text-center font-bold text-slate-100">Cuota</th>
-                    <th className="px-1 py-3 text-center font-bold text-slate-100">T.Cuotas</th>
-                    <th className="px-1 py-3 text-center font-bold text-slate-100">H.E.</th>
-                    <th className="px-1 py-3 text-center font-bold text-slate-100">Motivo NC</th>
-                    <th className="px-1 py-3 text-center font-bold text-slate-100">Recomendado?</th>
-                    <th className="px-1 py-3 text-center font-bold text-slate-100"></th>
+                  <tr className="bg-green-200">
+                    <th className="px-1 py-1 text-center font-bold text-slate-950 leading-tight">Ingresos</th>
+                    <th className="px-1 py-1 text-center font-bold text-slate-950 leading-tight">Vivienda</th>
+                    <th className="px-1 py-1 text-center font-bold text-slate-950 leading-tight">Hipoteca</th>
+                    <th className="px-1 py-1 text-center font-bold text-slate-950 leading-tight">D.Púb.</th>
+                    <th className="px-1 py-1 text-center font-bold text-slate-950 leading-tight">Entrada</th>
+                    <th className="px-1 py-1 text-center font-bold text-slate-950 leading-tight">Fecha1ªC.</th>
+                    <th className="px-1 py-1 text-center font-bold text-slate-950 leading-tight">Cuota</th>
+                    <th className="px-1 py-1 text-center font-bold text-slate-950 leading-tight">T.Cuotas</th>
+                    <th className="px-1 py-1 text-center font-bold text-slate-950 leading-tight">H.E.</th>
+                    <th className="px-1 py-1 text-center font-bold text-slate-950 leading-tight">Motivo NC</th>
+                    <th className="px-1 py-1 text-center font-bold text-slate-950 leading-tight">Recomendado?</th>
+                    <th className="px-1 py-1 text-center font-bold text-slate-950 leading-tight"></th>
                   </tr>
 
                   {/* FILA 2: VALORES ECONÓMICOS */}
@@ -341,7 +359,7 @@ export default function Dashboard() {
                       <select 
                         value={lead.he_firmada || 'No'} 
                         onChange={(e) => updateField(lead.id, 'he_firmada', e.target.value)}
-                        className={`w-full p-1 font-bold ${lead.he_firmada === 'Si' ? 'bg-green-100 text-green-700' : 'bg-red-50 text-red-700'}`}
+                        className={`w-full p-1 font-bold ${lead.he_firmada === 'Si' ? 'bg-green-100 leading-tight text-green-700' : 'bg-red-50 text-red-700'}`}
                       >
                         <option value="No">No</option>
                         <option value="Si">Si</option>
@@ -364,7 +382,7 @@ export default function Dashboard() {
                       <select 
                         value={lead.recomendado || 'No'} 
                         onChange={(e) => updateField(lead.id, 'recomendado', e.target.value)}
-                        className={`w-full p-1 font-bold ${lead.recomendado === 'Si' ? 'bg-green-100 text-green-700' : 'bg-red-50 text-red-700'}`}
+                        className={`w-full p-1 font-bold ${lead.recomendado === 'Si' ? 'bg-green-100 leading-tight text-green-700' : 'bg-red-50 text-red-700'}`}
                       >
                         <option value="No">No</option>
                         <option value="Si">Si</option>
@@ -373,15 +391,15 @@ export default function Dashboard() {
                     <td className="px-1 py-5 text-center">
                       <button 
                         onClick={() => cerrarVenta(lead.id)}
-                        className="bg-blue-700 text-white px-2 py-1 rounded text-[16px] font-bold hover:bg-blue-800 shadow-sm transition-all active:scale-95"
+                        className="bg-orange-300 text-black px-2 py-1 rounded text-[16px] font-bold hover:bg-orange-400 shadow-sm transition-all active:scale-95"
                       >
-                        Cerrar
+                        Contratado
                       </button>
                     </td>
                   </tr>
                   
                   {/* ESPACIO ENTRE LEADS */}
-                  <tr className="h-15"><td colSpan={12} className="bg-gray-50"></td></tr>
+                  <tr className="h-10"><td colSpan={12} className="bg-gray-50"></td></tr>
                 </tbody>
               ))}
             </table>
