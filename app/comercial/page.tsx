@@ -108,7 +108,7 @@ const getStatusTextColor = (valor: string) => {
               style={{ width: 'auto', height: 'auto' }}
               priority 
             />
-            <h1 className="text-[16px] text-slate-500 font-semibold tracking-widest h-10 top-0 z-30 mt-5 ml-20">
+            <h1 className="text-[16px] text-slate-500 font-semibold tracking-widest h-10 top-0 z-0 mt-5 ml-15">
               DefenCore
             </h1>
           </div>
@@ -170,7 +170,7 @@ const getStatusTextColor = (valor: string) => {
                       <div className="flex flex-col items-center justify-center">
                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
                         <p className="mt-4 text-blue-600 font-bold text-base animate-pulse">
-                          Procesando venta y actualizando comisión...
+                          Procesando Acción y actualizando datos...
                         </p>
                       </div>
                     </td>
@@ -200,39 +200,39 @@ const getStatusTextColor = (valor: string) => {
                     {/* SEGUIMIENTO */}
                     <td className="p-1">
                       <textarea 
-                        className="w-full h-8 p-1 text-center bg-transparent border-none text-[10px] resize-y "
+                        className="w-full truncate text-slate-700 h-8 p-1 text-center bg-transparent border-none text-[10px] resize-y "
                         defaultValue={lead.seguimiento}
                         onBlur={(e) => updateField(lead.id, 'seguimiento', e.target.value)}
                         placeholder="Escribir nota..."
                       />
                     </td>
 
-                    <td className="p-2 text-center">
+                    <td className="p-2 text-center truncate text-slate-700">
                       {new Date(lead.fecha_creacion).toLocaleDateString('es-ES', { 
                         day: 'numeric',
                         month: 'short'
                       }).replace('.', '').replace(/ /g, '-').replace(/^\w|(?<=-)\w/g, (l) => l.toUpperCase())}
                     </td>
-                    <td className="p-2 text-center text-slate-700">{lead.horario_llamada}</td>
+                    <td className="p-2 text-center truncate text-slate-700">{lead.horario_llamada}</td>
                     <td className="p-2 text-center font-semibold truncate text-slate-700">{lead.nombre_completo}</td>
-                    <td className="p-2 font-medium text-center">
+                    <td className="p-2 font-medium text-center truncate text-slate-700">
                       {lead.telefono ? lead.telefono.replace('+34', '').trim() : ''}
                     </td>
-                    <td className="p-2 text-center">{lead.provincia}</td>
+                    <td className="p-2 text-center truncate text-slate-700">{lead.provincia}</td>
 
                     {/* S. LABORAL */}
-                    <td className="p-2 text-center">{lead.situacion}</td>
+                    <td className="p-2 text-center truncate text-slate-700">{lead.situacion}</td>
 
-                    <td className="p-2 text-center">{lead.importe_deuda}</td>
-                    <td className="p-2 text-center truncate">{lead.situacion_pagos}</td>
+                    <td className="p-2 text-center truncate text-slate-700">{lead.importe_deuda}</td>
+                    <td className="p-2 text-center truncate text-slate-700">{lead.situacion_pagos}</td>
                     
                     {/* EMBARGOS */}
-                    <td className="p-2 text-center truncate">{lead.embargos}</td>
+                    <td className="p-2 text-center truncate text-slate-700">{lead.embargos}</td>
 
-                    <td className="p-2 text-center truncate text-slate-500 italic">{lead.preocupacion}</td>
+                    <td className="p-2 text-center truncate text-slate-700 italic">{lead.preocupacion}</td>
                     
                     {/* INGRESOS */}
-                    <td className="p-1 text-center">
+                    <td className="p-1 text-center truncate text-slate-700">
                       <input 
                         type="number" 
                         className="w-full p-1 text-center bg-transparent"
@@ -243,7 +243,7 @@ const getStatusTextColor = (valor: string) => {
 
                     <td className="p-2 text-center">
                       <textarea 
-                        className="w-full h-8 p-1 text-center bg-transparent border-none text-[10px] resize-y "
+                        className="w-full h-8 p-1 text-center truncate text-slate-700 bg-transparent border-none text-[10px] resize-y "
                         defaultValue={lead.vivienda_propiedad}
                         onBlur={(e) => updateField(lead.id, 'seguimiento', e.target.value)}
                         placeholder="Escribir nota..."
@@ -251,31 +251,31 @@ const getStatusTextColor = (valor: string) => {
                     </td>
                     <td className="p-2 text-center">
                       <textarea 
-                        className="w-full h-8 p-1 text-center bg-transparent border-none text-[10px] resize-y "
+                        className="w-full h-8 p-1 text-center truncate text-slate-700 bg-transparent border-none text-[10px] resize-y "
                         defaultValue={lead.coche}
                         onBlur={(e) => updateField(lead.id, 'seguimiento', e.target.value)}
                         placeholder="Escribir nota..."
                       />
                     </td>
                     <td className="p-2 text-center font-bold"><input 
-                        type="number" 
-                        className="w-full p-1 text-center font-bold"
+                        type="number"
+                        className="w-full p-1 text-center font-bold truncate text-slate-700"
                         defaultValue={lead.deuda_publica}
                         onBlur={(e) => updateField(lead.id, 'deuda_publica', e.target.value)}
                       />
                     </td>
-                    <td className="p-2 text-center">{lead.honorarios || '5200'}€</td>
+                    <td className="p-2 text-center truncate text-slate-700">{lead.honorarios || '5200'}€</td>
 
                     {/* ENTRADA Y CUOTA */}
                     <td className="p-1 text-center">
                       <input 
                         type="number" 
-                        className="w-full p-1 text-center font-bold"
+                        className="w-full p-1 text-center font-bold truncate text-slate-700"
                         defaultValue={lead.entrada_importe}
                         onBlur={(e) => updateField(lead.id, 'entrada_importe', e.target.value)}
                       />
                     </td>
-                    <td className="p-2 text-center font-bold">
+                    <td className="p-2 text-center font-bold truncate text-slate-700">
                       <input 
                         type="number" 
                         className="w-full p-1 text-center font-bold"
@@ -283,17 +283,17 @@ const getStatusTextColor = (valor: string) => {
                         onBlur={(e) => updateField(lead.id, 'cuota_importe', e.target.value)}
                       />
                     </td>
-                    <td className="p-2 text-center">{lead.total_cuotas}</td>
-                    <td className="p-2 text-center">
+                    <td className="p-2 text-center truncate text-slate-700">{lead.total_cuotas}</td>
+                    <td className="p-2 text-center truncate text-slate-700">
                       {new Date(lead.fecha_primera_cuota).toLocaleDateString('es-ES', { 
                         day: 'numeric',
                         month: 'short'
                       }).replace('.', '').replace(/ /g, '-').replace(/^\w|(?<=-)\w/g, (l) => l.toUpperCase())}
                     </td>
                     {/* SITUACION FINAL */}
-                    <td className="p-1 text-center font-bold">
+                    <td className="p-1 text-center font-bold truncate text-slate-700">
                       <select 
-                        className={`w-full p-1 text-center bg-transparent outline-none cursor-pointer ${getStatusTextColor(lead.situacion_final)}`}
+                        className={`w-full p-1 text-center truncate bg-transparent outline-none cursor-pointer ${getStatusTextColor(lead.situacion_final)}`}
                         value={lead.situacion_final || "Libre"}
                         onChange={(e) => updateField(lead.id, 'situacion_final', e.target.value)}
                       >
