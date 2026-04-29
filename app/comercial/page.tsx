@@ -41,7 +41,7 @@ export default function ComercialPage() {
   const esCierre = field === 'situacion_final' && value !== 'Libre' && value !== '-';
   
   if (esCierre) {
-    const confirmar = window.confirm("¿Confirmas el cierre de este lead?");
+    const confirmar = window.confirm("¿Confirmas esta Acción?");
     if (!confirmar) return;
     setLoading(true); // Iniciamos el spinner
   }
@@ -60,7 +60,7 @@ export default function ComercialPage() {
     // 2. Insertamos comisión
     await supabase.from('comisiones').insert([{ id_usuario: comercialId, id_lead: id, monto: 40 }]);
     
-    alert("Venta procesada con éxito.");
+    alert("Acción Realizada Correctamente.");
     await fetchLeads(); // Recargamos para limpiar datos
     setLoading(false);  // Quitamos spinner
   } else {
@@ -77,13 +77,29 @@ export default function ComercialPage() {
   }
 };
 
+const getStatusTextColor = (valor: string) => {
+  switch (valor) {
+    case 'Nuevo': return 'text-blue-600';
+    case 'Contratado': return 'text-emerald-600';
+    case 'Pendiente Llamada': 
+    case 'Llamar más adelante': return 'text-orange-500';
+    case 'Viable': return 'text-indigo-600';
+    case 'No Viable': 
+    case 'No puede Pagar':
+    case 'Me cuelga': return 'text-rose-600';
+    case 'Ficha Pendiente': 
+    case 'Se lo piensa': return 'text-amber-500';
+    default: return 'text-slate-500';
+  }
+};
+
   return (
-    <div className="bg-slate-100 min-h-screen flex flex-col">
+    <div className="bg-white min-h-screen flex flex-col">
       {/* HEADER */}
-      <header className="bg-white border-b px-6 py-2 flex items-center h-20 sticky top-0 z-30 shadow-sm">
+      <header className="bg-white px-6 py-2 flex items-center sticky top-0 z-30 mt-5 shadow-sm">
         {/* SECCIÓN IZQUIERDA: Logo y Títulos */}
-        <div className="flex items-center gap-4">
-          <div className="shrink-0">
+        <div className="flex flex-col items-start gap-1">
+          <div className="pt-2">
             <Image 
               src="/Defendoo_logo_color.png" 
               alt="Logo"
@@ -92,12 +108,8 @@ export default function ComercialPage() {
               style={{ width: 'auto', height: 'auto' }}
               priority 
             />
-          </div>
-          
-          {/* Contenedor de títulos con bordes divisores verticales */}
-          <div className="flex items-center h-8"> 
-            <h1 className="text-[25px] text-slate-900 font-bold border-l pl-6 hidden md:block text-sm">
-              DefenCore - CRM
+            <h1 className="text-[16px] text-slate-500 font-semibold tracking-widest h-10 top-0 z-30 mt-5 ml-20">
+              DefenCore
             </h1>
           </div>
         </div>
@@ -108,7 +120,7 @@ export default function ComercialPage() {
             Luis Ramos Valcárcel
           </span>
           
-          <button 
+          <button
             onClick={handleLogout}
             className="flex items-center gap-2 bg-red-50 text-red-600 px-4 py-2 rounded-md text-sm font-bold hover:bg-red-100 transition duration-200"
           >
@@ -122,7 +134,7 @@ export default function ComercialPage() {
       <div className="p-4 flex-1">
         <div className="bg-white rounded-lg shadow-2xl border-slate-200 overflow-hidden">
           <div className="overflow-x-auto max-h-[calc(100vh-120px)]">
-            <table className="w-full text-[11px] border-collapse table-fixed">
+            <table className="w-full text-[12px] border-collapse table-fixed">
               <thead className="text-[13px] bg-[#ffffff] text-[#071638] sticky top-0 z-20">
                 <tr>
                   <th className="w-24 p-2 border-slate-300">FASE</th>
@@ -146,7 +158,6 @@ export default function ComercialPage() {
                   <th className="w-24 p-2 border-slate-300">CUOTA</th>
                   <th className="w-20 p-2 border-slate-300">N.CUOTAS</th>
                   <th className="w-32 p-2 border-slate-300">F. 1ER PAGO</th>
-                  <th className="w-24 p-2 border-slate-300">H.E.FIRMADA</th>
                   <th className="w-32 p-2">SITUA. FINAL</th>
 
                 </tr>
@@ -171,18 +182,18 @@ export default function ComercialPage() {
                     .map((lead) => (
                       <tr key={lead.id} className="hover:bg-blue-50/40 transition-colors border-b border-slate-100">
                     {/* FASE */}
-                    <td className="p-1 text-center font-bold text-gray-700">
+                    <td className="p-1 text-center font-bold">
                       <select
-                        className="w-full p-1 text-center bg-transparent"
-                        value={lead.estado} // Usamos value en lugar de defaultValue para sincronizar
-                        onChange={(e) => updateField(lead.id, 'estado', e.target.value)} // CORREGIDO: 'estado' en lugar de 'situacion_laboral'
+                        className={`w-full p-1 text-center bg-transparent outline-none cursor-pointer ${getStatusTextColor(lead.estado)}`}
+                        value={lead.estado}
+                        onChange={(e) => updateField(lead.id, 'estado', e.target.value)}
                       >
-                        <option value="Nuevo">Nuevo</option>
-                        <option value="Contratado">Contratado</option>
-                        <option value="Pendiente Llamada">Pendiente Llamada</option>
-                        <option value="Ficha Pendiente">Ficha Pendiente</option>
-                        <option value="Viable">Viable</option>
-                        <option value="No Viable">No Viable</option>
+                        <option className="text-blue-600" value="Nuevo">Nuevo</option>
+                        <option className="text-emerald-600" value="Contratado">Contratado</option>
+                        <option className="text-orange-500" value="Pendiente Llamada">Pendiente Llamada</option>
+                        <option className="text-amber-500" value="Ficha Pendiente">Ficha Pendiente</option>
+                        <option className="text-indigo-600" value="Viable">Viable</option>
+                        <option className="text-rose-600" value="No Viable">No Viable</option>
                       </select>
                     </td>
                     
@@ -203,37 +214,20 @@ export default function ComercialPage() {
                       }).replace('.', '').replace(/ /g, '-').replace(/^\w|(?<=-)\w/g, (l) => l.toUpperCase())}
                     </td>
                     <td className="p-2 text-center text-slate-700">{lead.horario_llamada}</td>
-                    <td className="p-2 text-left font-semibold truncate text-slate-700">{lead.nombre_completo}</td>
+                    <td className="p-2 text-center font-semibold truncate text-slate-700">{lead.nombre_completo}</td>
                     <td className="p-2 font-medium text-center">
                       {lead.telefono ? lead.telefono.replace('+34', '').trim() : ''}
                     </td>
                     <td className="p-2 text-center">{lead.provincia}</td>
 
                     {/* S. LABORAL */}
-                    <td className="p-1 text-center">
-                      <select
-                        className="w-full p-1 text-center bg-transparent"
-                        defaultValue={lead.situacion_laboral}
-                        onChange={(e) => updateField(lead.id, 'situacion_laboral', e.target.value)}
-                      >
-                        <option value="Cuenta ajena">Cuenta ajena</option>
-                        <option value="Autónomo">Autónomo</option>
-                        <option value="Pensionista">Pensionista</option>
-                        <option value="Desempleado">Desempleado</option>
-                      </select>
-                    </td>
+                    <td className="p-2 text-center">{lead.situacion}</td>
 
                     <td className="p-2 text-center">{lead.importe_deuda}</td>
                     <td className="p-2 text-center truncate">{lead.situacion_pagos}</td>
                     
                     {/* EMBARGOS */}
-                    <td className="p-1 text-center">
-                      <input 
-                        type="checkbox" 
-                        defaultChecked={lead.embargos}
-                        onChange={(e) => updateField(lead.id, 'embargos', e.target.checked)}
-                      />
-                    </td>
+                    <td className="p-2 text-center truncate">{lead.embargos}</td>
 
                     <td className="p-2 text-center truncate text-slate-500 italic">{lead.preocupacion}</td>
                     
@@ -263,7 +257,13 @@ export default function ComercialPage() {
                         placeholder="Escribir nota..."
                       />
                     </td>
-                    <td className="p-2 text-center font-bold">{lead.deuda_publica ? 'SÍ' : 'NO'}</td>
+                    <td className="p-2 text-center font-bold"><input 
+                        type="number" 
+                        className="w-full p-1 text-center font-bold"
+                        defaultValue={lead.deuda_publica}
+                        onBlur={(e) => updateField(lead.id, 'deuda_publica', e.target.value)}
+                      />
+                    </td>
                     <td className="p-2 text-center">{lead.honorarios || '5200'}€</td>
 
                     {/* ENTRADA Y CUOTA */}
@@ -290,29 +290,20 @@ export default function ComercialPage() {
                         month: 'short'
                       }).replace('.', '').replace(/ /g, '-').replace(/^\w|(?<=-)\w/g, (l) => l.toUpperCase())}
                     </td>
-                    {/* HE FIRMADO */}
-                    <td className="p-1 text-center">
-                      <input
-                        type="checkbox" 
-                        defaultChecked={lead.he_firmada}
-                        onChange={(e) => updateField(lead.id, 'he_firmada', e.target.checked)}
-                      />
-                    </td>
-
                     {/* SITUACION FINAL */}
-                    <td className="p-1 text-center">
+                    <td className="p-1 text-center font-bold">
                       <select 
-                        className="w-full p-1 text-center bg-transparent font-semibold "
+                        className={`w-full p-1 text-center bg-transparent outline-none cursor-pointer ${getStatusTextColor(lead.situacion_final)}`}
                         value={lead.situacion_final || "Libre"}
                         onChange={(e) => updateField(lead.id, 'situacion_final', e.target.value)}
                       >
-                        <option value="Libre">-</option>
-                        <option value="Contratado">Contratado</option>
-                        <option value="Se lo piensa">Se lo piensa</option>
-                        <option value="No puede Pagar">No puede Pagar</option>
-                        <option value="Perder Coche">Perder Coche</option>
-                        <option value="Llamar más adelante">Llamar más adelante</option>
-                        <option value="Me cuelga">Me cuelga</option>
+                        <option className="text-slate-500" value="Libre">-</option>
+                        <option className="text-emerald-600" value="Contratado">Contratado</option>
+                        <option className="text-amber-500" value="Se lo piensa">Se lo piensa</option>
+                        <option className="text-rose-600" value="No puede Pagar">No puede Pagar</option>
+                        <option className="text-rose-600" value="Perder Coche">Perder Coche</option>
+                        <option className="text-orange-500" value="Llamar más adelante">Llamar más adelante</option>
+                        <option className="text-rose-600" value="Me cuelga">Me cuelga</option>
                       </select>
                     </td>
                   </tr>
