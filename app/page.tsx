@@ -47,7 +47,7 @@ export default function Login() {
       } else if (rol === 'administrador') {
         router.push('/administrador')
       } else {
-        router.push('/dashboard')
+        router.push('/comercial')
       }
     }
   }
