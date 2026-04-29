@@ -96,7 +96,7 @@ export default function Dashboard() {
         return;
     }
 
-    alert("¡Venta cerrada con éxito!");
+    alert("¡Venta Contratada con éxito!");
     
     // 3. Importante: Limpiamos el lead seleccionado para que desaparezca el panel derecho
     setSelectedLead(null); 

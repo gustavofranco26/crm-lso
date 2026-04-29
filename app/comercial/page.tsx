@@ -37,96 +37,182 @@ export default function ComercialPage() {
   }
 
   const updateField = async (id: string, field: string, value: any) => {
-    setLeads(prev => prev.map(l => l.id === id ? { ...l, [field]: value } : l));
+  // Si es un cierre, activamos el loading para dar feedback
+  const esCierre = field === 'situacion_final' && value !== 'Libre' && value !== '-';
+  
+  if (esCierre) {
+    const confirmar = window.confirm("¿Confirmas el cierre de este lead?");
+    if (!confirmar) return;
+    setLoading(true); // Iniciamos el spinner
+  }
+
+  // Actualización en local para que el filtro lo oculte al instante
+  setLeads(prev => prev.map(l => l.id === id ? { ...l, [field]: value } : l));
+
+  // Lógica de base de datos
+  if (esCierre) {
+    const rawId = localStorage.getItem('user_id');
+    const comercialId = rawId?.replace(/['"]+/g, '');
+
+    // 1. Cerramos el lead en DB
+    await supabase.from('leads').update({ situacion_final: value, estado: 'cerrado' }).eq('id', id);
+
+    // 2. Insertamos comisión
+    await supabase.from('comisiones').insert([{ id_usuario: comercialId, id_lead: id, monto: 40 }]);
     
+    alert("Venta procesada con éxito.");
+    await fetchLeads(); // Recargamos para limpiar datos
+    setLoading(false);  // Quitamos spinner
+  } else {
+    // Actualización normal para otros campos (FASE, teléfono, etc)
     const { error } = await supabase
       .from('leads')
       .update({ [field]: value })
       .eq('id', id);
 
-    if (error) console.error(`Error en ${field}:`, error.message);
-  };
+    if (error) {
+      console.error(`Error en ${field}:`, error.message);
+      setLoading(false);
+    }
+  }
+};
 
   return (
     <div className="bg-slate-100 min-h-screen flex flex-col">
       {/* HEADER */}
-      <header className="bg-white px-6 py-2 flex justify-between items-center sticky top-0 z-30 shadow-sm">
+      <header className="bg-white border-b px-6 py-2 flex items-center h-20 sticky top-0 z-30 shadow-sm">
+        {/* SECCIÓN IZQUIERDA: Logo y Títulos */}
         <div className="flex items-center gap-4">
-          <Image 
-            src="/Defendoo_logo_color.png" 
-            alt="Logo" 
-            width={200} 
-            height={40}
-            priority 
-          />
-          <h1 className="text-slate-500 font-medium border-l pl-4 hidden md:block text-sm">
-            Luis Ramos Valcárcel
-          </h1>
+          <div className="shrink-0">
+            <Image 
+              src="/Defendoo_logo_color.png" 
+              alt="Logo"
+              width={150}
+              height={150}
+              style={{ width: 'auto', height: 'auto' }}
+              priority 
+            />
+          </div>
+          
+          {/* Contenedor de títulos con bordes divisores verticales */}
+          <div className="flex items-center h-8"> 
+            <h1 className="text-[25px] text-slate-900 font-bold border-l pl-6 hidden md:block text-sm">
+              DefenCore - CRM
+            </h1>
+          </div>
         </div>
-        <button onClick={handleLogout} className="flex items-center gap-2 bg-red-50 text-red-600 px-4 py-2 rounded-lg font-bold text-xs hover:bg-red-100 transition-colors">
-          <LogOut size={16} /> SALIR
-        </button>
+
+        {/* SECCIÓN DERECHA: Nombre y Salir (empujados por ml-auto) */}
+        <div className="ml-auto flex items-center gap-6">
+          <span className="text-slate-600 font-medium hidden lg:block text-sm">
+            Luis Ramos Valcárcel
+          </span>
+          
+          <button 
+            onClick={handleLogout}
+            className="flex items-center gap-2 bg-red-50 text-red-600 px-4 py-2 rounded-md text-sm font-bold hover:bg-red-100 transition duration-200"
+          >
+            <LogOut size={16} />
+            <span>SALIR</span>
+          </button>
+        </div>
       </header>
 
       {/* TABLA DE GESTIÓN */}
       <div className="p-4 flex-1">
-        <div className="bg-white rounded-lg shadow-2xl border border-slate-200 overflow-hidden">
+        <div className="bg-white rounded-lg shadow-2xl border-slate-200 overflow-hidden">
           <div className="overflow-x-auto max-h-[calc(100vh-120px)]">
             <table className="w-full text-[11px] border-collapse table-fixed">
-              <thead className="bg-[#ffffff] text-[#071638] sticky top-0 z-20">
+              <thead className="text-[13px] bg-[#ffffff] text-[#071638] sticky top-0 z-20">
                 <tr>
-                  <th className="w-24 p-2 border-r border-slate-300">FASE</th>
-                  <th className="w-64 p-2 border-r border-slate-300">SEGUIMIENTO</th>
-                  <th className="w-24 p-2 border-r border-slate-300">FECHA</th>
-                  <th className="w-32 p-2 border-r border-slate-300">CONTACTAR</th>
-                  <th className="w-48 p-2 border-r border-slate-300">NOMBRE</th>
-                  <th className="w-32 p-2 border-r border-slate-300">TELÉFONO</th>
-                  <th className="w-32 p-2 border-r border-slate-300">PROVINCIA</th>
-                  <th className="w-32 p-2 border-r border-slate-300">S. LABORAL</th>
-                  <th className="w-32 p-2 border-r border-slate-300">DEUDA</th>
-                  <th className="w-48 p-2 border-r border-slate-300">SITUACIÓN PAGOS</th>
-                  <th className="w-24 p-2 border-r border-slate-300">EMBARGOS</th>
-                  <th className="w-48 p-2 border-r border-slate-300">PREOCUPACIÓN</th>
-                  <th className="w-28 p-2 border-r border-slate-300">INGRESOS</th>
-                  <th className="w-32 p-2 border-r border-slate-300">VIVIENDA/HIPO</th>
-                  <th className="w-28 p-2 border-r border-slate-300">COCHE</th>
-                  <th className="w-28 p-2 border-r border-slate-300">DEUDA PÚBLICA</th>
-                  <th className="w-28 p-2 border-r border-slate-300">HONORARIOS</th>
-                  <th className="w-28 p-2 border-r border-slate-300 ">ENTRADA</th>
-                  <th className="w-24 p-2 border-r border-slate-300">CUOTA</th>
-                  <th className="w-20 p-2 border-r border-slate-300">Nº CUOTAS</th>
-                  <th className="w-32 p-2 border-r border-slate-300">1er PAGO</th>
-                  <th className="w-24 p-2 border-r border-slate-300">H.E. FIRMADA</th>
-                  <th className="w-32 p-2">SIT. FINAL</th>
+                  <th className="w-24 p-2 border-slate-300">FASE</th>
+                  <th className="w-60 p-2 border-slate-300">SEGUIMIENTO</th>
+                  <th className="w-24 p-2 border-slate-300">FECHA</th>
+                  <th className="w-24 p-2 border-slate-300">CONTACTAR</th>
+                  <th className="w-55 p-2 border-slate-300">NOMBRE</th>
+                  <th className="w-32 p-2 border-slate-300">TELÉFONO</th>
+                  <th className="w-32 p-2 border-slate-300">PROVINCIA</th>
+                  <th className="w-32 p-2 border-slate-300">S. LABORAL</th>
+                  <th className="w-32 p-2 border-slate-300">DEUDA</th>
+                  <th className="w-30 p-2 border-slate-300">SITUA. PAGOS</th>
+                  <th className="w-24 p-2 border-slate-300">EMBARGOS</th>
+                  <th className="w-40 p-2 border-slate-300">PREOCUPACIÓN</th>
+                  <th className="w-28 p-2 border-slate-300">INGRESOS</th>
+                  <th className="w-60 p-2 border-slate-300">VIVIEN/HIPOT</th>
+                  <th className="w-28 p-2 border-slate-300">COCHE</th>
+                  <th className="w-28 p-2 border-slate-300">DEUDA PÚBL.</th>
+                  <th className="w-28 p-2 border-slate-300">HONORARIOS</th>
+                  <th className="w-28 p-2 border-slate-300">ENTRADA</th>
+                  <th className="w-24 p-2 border-slate-300">CUOTA</th>
+                  <th className="w-20 p-2 border-slate-300">N.CUOTAS</th>
+                  <th className="w-32 p-2 border-slate-300">F. 1ER PAGO</th>
+                  <th className="w-24 p-2 border-slate-300">H.E.FIRMADA</th>
+                  <th className="w-32 p-2">SITUA. FINAL</th>
 
                 </tr>
               </thead>
-              <tbody className="divide-slate-200">
-                {leads.map((lead) => (
-                  <tr key={lead.id} className="hover:bg-blue-50/40 transition-colors">
+              <tbody className="divide-y divide-slate-200">
+                {loading ? (
+                  /* SPINNER QUE OCUPA TODA LA TABLA */
+                  <tr>
+                    <td colSpan={24} className="py-24 text-center bg-white/50">
+                      <div className="flex flex-col items-center justify-center">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                        <p className="mt-4 text-blue-600 font-bold text-base animate-pulse">
+                          Procesando venta y actualizando comisión...
+                        </p>
+                      </div>
+                    </td>
+                  </tr>
+                ) : (
+                  /* LISTADO DE LEADS FILTRADOS */
+                  leads
+                    .filter(lead => !lead.situacion_final || lead.situacion_final === "Libre" || lead.situacion_final === "-")
+                    .map((lead) => (
+                      <tr key={lead.id} className="hover:bg-blue-50/40 transition-colors border-b border-slate-100">
                     {/* FASE */}
-                    <td className="p-1 text-center font-bold text-gray-700">{lead.estado}</td>
+                    <td className="p-1 text-center font-bold text-gray-700">
+                      <select
+                        className="w-full p-1 text-center bg-transparent"
+                        value={lead.estado} // Usamos value en lugar de defaultValue para sincronizar
+                        onChange={(e) => updateField(lead.id, 'estado', e.target.value)} // CORREGIDO: 'estado' en lugar de 'situacion_laboral'
+                      >
+                        <option value="Nuevo">Nuevo</option>
+                        <option value="Contratado">Contratado</option>
+                        <option value="Pendiente Llamada">Pendiente Llamada</option>
+                        <option value="Ficha Pendiente">Ficha Pendiente</option>
+                        <option value="Viable">Viable</option>
+                        <option value="No Viable">No Viable</option>
+                      </select>
+                    </td>
                     
                     {/* SEGUIMIENTO */}
                     <td className="p-1">
                       <textarea 
-                        className="w-full h-8 p-1 bg-transparent border-none text-[10px] resize-none focus:ring-1 focus:ring-blue-500"
+                        className="w-full h-8 p-1 text-center bg-transparent border-none text-[10px] resize-y "
                         defaultValue={lead.seguimiento}
                         onBlur={(e) => updateField(lead.id, 'seguimiento', e.target.value)}
                         placeholder="Escribir nota..."
                       />
                     </td>
 
-                    <td className="p-2">{new Date(lead.fecha_creacion).toLocaleDateString('es-ES')}</td>
-                    <td className="p-2 text-slate-700">{lead.horario_contacto}</td>
-                    <td className="p-2 font-semibold truncate text-slate-700">{lead.nombre_completo}</td>
-                    <td className="p-2 text-gray-700 font-medium">{lead.telefono}</td>
-                    <td className="p-2">{lead.provincia}</td>
+                    <td className="p-2 text-center">
+                      {new Date(lead.fecha_creacion).toLocaleDateString('es-ES', { 
+                        day: 'numeric',
+                        month: 'short'
+                      }).replace('.', '').replace(/ /g, '-').replace(/^\w|(?<=-)\w/g, (l) => l.toUpperCase())}
+                    </td>
+                    <td className="p-2 text-center text-slate-700">{lead.horario_llamada}</td>
+                    <td className="p-2 text-left font-semibold truncate text-slate-700">{lead.nombre_completo}</td>
+                    <td className="p-2 font-medium text-center">
+                      {lead.telefono ? lead.telefono.replace('+34', '').trim() : ''}
+                    </td>
+                    <td className="p-2 text-center">{lead.provincia}</td>
 
                     {/* S. LABORAL */}
-                    <td className="p-1">
+                    <td className="p-1 text-center">
                       <select
-                        className="w-full p-1 bg-transparent"
+                        className="w-full p-1 text-center bg-transparent"
                         defaultValue={lead.situacion_laboral}
                         onChange={(e) => updateField(lead.id, 'situacion_laboral', e.target.value)}
                       >
@@ -137,8 +223,8 @@ export default function ComercialPage() {
                       </select>
                     </td>
 
-                    <td className="p-2">{lead.monto_deuda}</td>
-                    <td className="p-2 truncate">{lead.situacion_pagos}</td>
+                    <td className="p-2 text-center">{lead.importe_deuda}</td>
+                    <td className="p-2 text-center truncate">{lead.situacion_pagos}</td>
                     
                     {/* EMBARGOS */}
                     <td className="p-1 text-center">
@@ -149,50 +235,75 @@ export default function ComercialPage() {
                       />
                     </td>
 
-                    <td className="p-2 truncate text-slate-500 italic">{lead.preocupacion}</td>
+                    <td className="p-2 text-center truncate text-slate-500 italic">{lead.preocupacion}</td>
                     
                     {/* INGRESOS */}
-                    <td className="p-1">
+                    <td className="p-1 text-center">
                       <input 
                         type="number" 
-                        className="w-full text-center p-1 bg-transparent"
+                        className="w-full p-1 text-center bg-transparent"
                         defaultValue={lead.ingresos}
                         onBlur={(e) => updateField(lead.id, 'ingresos', e.target.value)}
                       />
                     </td>
 
-                    <td className="p-2 text-center">{lead.vivienda_hipoteca}</td>
-                    <td className="p-2 text-center">{lead.coche}</td>
+                    <td className="p-2 text-center">
+                      <textarea 
+                        className="w-full h-8 p-1 text-center bg-transparent border-none text-[10px] resize-y "
+                        defaultValue={lead.vivienda_propiedad}
+                        onBlur={(e) => updateField(lead.id, 'seguimiento', e.target.value)}
+                        placeholder="Escribir nota..."
+                      />
+                    </td>
+                    <td className="p-2 text-center">
+                      <textarea 
+                        className="w-full h-8 p-1 text-center bg-transparent border-none text-[10px] resize-y "
+                        defaultValue={lead.coche}
+                        onBlur={(e) => updateField(lead.id, 'seguimiento', e.target.value)}
+                        placeholder="Escribir nota..."
+                      />
+                    </td>
                     <td className="p-2 text-center font-bold">{lead.deuda_publica ? 'SÍ' : 'NO'}</td>
                     <td className="p-2 text-center">{lead.honorarios || '5200'}€</td>
 
                     {/* ENTRADA Y CUOTA */}
-                    <td className="p-1">
+                    <td className="p-1 text-center">
                       <input 
                         type="number" 
-                        className="w-full text-center p-1 font-bold"
+                        className="w-full p-1 text-center font-bold"
                         defaultValue={lead.entrada_importe}
                         onBlur={(e) => updateField(lead.id, 'entrada_importe', e.target.value)}
                       />
                     </td>
-                    <td className="p-2 text-center font-bold">{lead.cuota_mensual}€</td>
-                    <td className="p-2 text-center">{lead.numero_cuotas}</td>
-                    <td className="p-2 text-center">{lead.fecha_primer_pago}</td>
-
+                    <td className="p-2 text-center font-bold">
+                      <input 
+                        type="number" 
+                        className="w-full p-1 text-center font-bold"
+                        defaultValue={lead.cuota_importe}
+                        onBlur={(e) => updateField(lead.id, 'cuota_importe', e.target.value)}
+                      />
+                    </td>
+                    <td className="p-2 text-center">{lead.total_cuotas}</td>
+                    <td className="p-2 text-center">
+                      {new Date(lead.fecha_primera_cuota).toLocaleDateString('es-ES', { 
+                        day: 'numeric',
+                        month: 'short'
+                      }).replace('.', '').replace(/ /g, '-').replace(/^\w|(?<=-)\w/g, (l) => l.toUpperCase())}
+                    </td>
                     {/* HE FIRMADO */}
                     <td className="p-1 text-center">
                       <input
                         type="checkbox" 
-                        defaultChecked={lead.he_firmado}
-                        onChange={(e) => updateField(lead.id, 'he_firmado', e.target.checked)}
+                        defaultChecked={lead.he_firmada}
+                        onChange={(e) => updateField(lead.id, 'he_firmada', e.target.checked)}
                       />
                     </td>
 
                     {/* SITUACION FINAL */}
                     <td className="p-1 text-center">
                       <select 
-                        className="w-full p-1 bg-transparent"
-                        defaultValue={lead.situacion_final}
+                        className="w-full p-1 text-center bg-transparent font-semibold "
+                        value={lead.situacion_final || "Libre"}
                         onChange={(e) => updateField(lead.id, 'situacion_final', e.target.value)}
                       >
                         <option value="Libre">-</option>
@@ -205,7 +316,7 @@ export default function ComercialPage() {
                       </select>
                     </td>
                   </tr>
-                ))}
+                ))) }
               </tbody>
             </table>
           </div>
