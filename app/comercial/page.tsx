@@ -557,14 +557,14 @@ const getStatusTextColor = (valor: string) => {
                       <ExpandableTextInput
                         id={lead.id}
                         field="cuota_importe"
-                        value={lead.fecha_primera_cuota}
+                        value={lead.cuota_importe}
                         placeholder="Cuota"
                       />
                     </td>
                     <td className="p-2 text-center truncate text-slate-700">
                       <ExpandableTextInput
                         id={lead.id}
-                        field="cuota_importe"
+                        field="total_cuotas"
                         value={lead.total_cuotas}
                         placeholder="¿Cuántas?"
                       />
