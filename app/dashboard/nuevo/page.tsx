@@ -64,7 +64,7 @@ export default function NuevoLead() {
     } else {
       alert("¡Lead de " + nuevoLead.nombre_completo + " guardado con éxito!")
       setRawData('') // Limpiar el área de texto
-      router.push('/administrador') // Redirigir al panel
+      router.push('/gerencia') // Redirigir a la vista anterior.
     }
     setLoading(false)
 }
