@@ -3,7 +3,7 @@ import { useState, useEffect, useRef, KeyboardEvent } from "react";
 import { supabase } from "@/lib/supabase";
 import Image from 'next/image';
 import { useRouter } from "next/navigation";
-import { LogOut } from "lucide-react";
+import { CheckIcon, LogOut } from "lucide-react";
 
 export default function ComercialPage() {
   const [leads, setLeads] = useState<any[]>([]);
@@ -429,6 +429,7 @@ const getStatusTextColor = (valor: string) => {
                   <th className="w-24 p-2 font-extrabold border-slate-300 text-[#4b8b16]">CUOTA</th>
                   <th className="w-24 p-2 font-extrabold border-slate-300 text-[#4b8b16]">N.CUOTAS</th>
                   <th className="w-32 p-2 font-extrabold border-slate-300 text-[#4b8b16]">F. 1ER PAGO</th>
+                  <th className="w-24 p-2 font-extrabold border-slate-300 text-[#4b8b16]">H.ENCARGO</th>
                   <th className="w-32 p-2 font-extrabold text-[#af7532]">SITUA. FINAL</th>
 
                 </tr>
@@ -576,6 +577,16 @@ const getStatusTextColor = (valor: string) => {
                         defaultValue={dateToInputValue(lead.fecha_primera_cuota)}
                         onBlur={(e) => updateField(lead.id, 'fecha_primera_cuota', e.target.value)}
                       />
+                    </td>
+                    <td className="p-2 text-center">
+                      <label className="inline-flex cursor-pointer items-center justify-center">
+                        <input
+                          type="checkbox"
+                          className="h-4 w-24 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                          checked={Boolean(lead.he_firmada === true || lead.he_firmada === 'true' || lead.he_firmada === 1 || lead.he_firmada === '1')}
+                          onChange={(e) => updateField(lead.id, 'he_firmada', e.target.checked)}
+                        />
+                      </label>
                     </td>
                     {/* SITUACION FINAL */}
                     <td className="p-1 text-center font-bold truncate text-slate-700">
