@@ -9,7 +9,7 @@ export default function ComercialPage() {
   const [leads, setLeads] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedFilterButton, setSelectedFilterButton] = useState<string | null>(null);
-  const [sortField, setSortField] = useState<'provincia' | 'situacion_pagos' | null>(null);
+  const [sortField, setSortField] = useState<'provincia' | 'situacion' | null>(null);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const router = useRouter();
 
@@ -111,12 +111,12 @@ export default function ComercialPage() {
     return Number.isNaN(date.getTime()) ? '' : date.toISOString().slice(0, 10);
   };
 
-  const getSortIcon = (field: 'provincia' | 'situacion_pagos') => {
+  const getSortIcon = (field: 'provincia' | 'situacion') => {
     if (sortField !== field) return '↕';
     return sortOrder === 'asc' ? '▲' : '▼';
   };
 
-  const handleSort = (field: 'provincia' | 'situacion_pagos') => {
+  const handleSort = (field: 'provincia' | 'situacion') => {
     if (sortField === field) {
       setSortOrder(prev => (prev === 'asc' ? 'desc' : 'asc'));
     } else {
@@ -330,7 +330,7 @@ const getStatusTextColor = (valor: string) => {
           
           <button
             onClick={handleLogout}
-            className="flex items-center gap-2 text-[#4d4d4d] px-4 py-2 rounded-md text-sm font-bold hover:text-[#2d2929] transition duration-200"
+            className="flex items-center gap-2 text-[#4d4d4d] px-4 py-2 rounded-md text-sm font-bold hover:text-[#7c6b6b] transition duration-200"
           >
             <LogOut size={16} />
             <span>Cerrar Sesión</span>
@@ -349,7 +349,7 @@ const getStatusTextColor = (valor: string) => {
                   <th className="w-50 p-2 font-extrabold text-[#097706]">OBSERVACIONES</th>
                   <th className="w-24 p-2 font-extrabold border-slate-300 text-[#ff7700]">FECHA</th>
                   <th className="w-24 p-2 font-extrabold border-slate-300 text-[#ff7700]">CONTACTAR</th>
-                  <th className="w-55 p-2 font-extrabold border-slate-300 text-[#ff7700]">NOMBRE</th>
+                  <th className="w-55 p-2 font-extrabold border-slate-300 text-[#ff7700]">NOMBRE COMPLETO</th>
                   <th className="w-32 p-2 font-extrabold border-slate-300 text-[#ff7700]">TELÉFONO</th>
                   <th className="w-32 p-2 font-extrabold border-slate-300 text-[#ff7700]">
                     <button
@@ -360,15 +360,15 @@ const getStatusTextColor = (valor: string) => {
                       PROVINCIA <span>{getSortIcon('provincia')}</span>
                     </button>
                   </th>
-                  <th className="w-32 p-2 font-extrabold border-slate-300 text-[#ff7700]">SIT. LABORAL</th>
-                  <th className="w-32 p-2 font-extrabold border-slate-300 text-[#ff7700]">DEUDA</th>
+                  <th className="w-50 p-2 font-extrabold border-slate-300 text-[#ff7700]">SIT-LABORAL</th>
+                  <th className="w-42 p-2 font-extrabold border-slate-300 text-[#ff7700]">DEUDA</th>
                   <th className="w-30 p-2 font-extrabold border-slate-300 text-[#ff7700]">
                     <button
                       type="button"
-                      onClick={() => handleSort('situacion_pagos')}
+                      onClick={() => handleSort('situacion')}
                       className="inline-flex items-center gap-1 cursor-pointer"
                     >
-                      SITUA. PAGOS <span>{getSortIcon('situacion_pagos')}</span>
+                      SIT-PAGOS <span>{getSortIcon('situacion')}</span>
                     </button>
                   </th>
                   <th className="w-24 p-2 font-extrabold border-slate-300 text-[#eb2323]">EMBARGOS</th>
@@ -439,10 +439,8 @@ const getStatusTextColor = (valor: string) => {
                       {lead.telefono ? lead.telefono.replace('+34', '').trim() : ''}
                     </td>
                     <td className="p-2 text-center truncate text-slate-700">{lead.provincia}</td>
-
                     {/* S. LABORAL */}
                     <td className="p-2 text-center truncate text-slate-700">{lead.situacion}</td>
-
                     <td className="p-2 text-center font-bold">
                       <ExpandableTextInput
                         id={lead.id}
@@ -518,7 +516,14 @@ const getStatusTextColor = (valor: string) => {
                         placeholder="Cuota"
                       />
                     </td>
-                    <td className="p-2 text-center truncate text-slate-700">{lead.total_cuotas}</td>
+                    <td className="p-2 text-center truncate text-slate-700">
+                      <ExpandableTextInput
+                        id={lead.id}
+                        field="cuota_importe"
+                        value={lead.total_cuotas}
+                        placeholder="¿Cuántas?"
+                      />
+                    </td>
                     <td className="p-2 text-center truncate text-slate-700">
                       <input
                         type="date"
