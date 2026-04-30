@@ -259,30 +259,30 @@ const getStatusTextColor = (valor: string) => {
         <div className="bg-white rounded-lg shadow-2xl border-slate-200 overflow-hidden">
           <div className="overflow-x-auto max-h-[calc(100vh-120px)]">
             <table className="w-full text-[12px] border-collapse table-fixed">
-              <thead className="text-[13px] bg-[#ffffff] text-[#071638] sticky top-0 z-20">
+              <thead className="text-[13px] bg-[#ffffff] sticky top-0 z-20">
                 <tr>
-                  <th className="w-24 p-2 border-slate-300">FASE</th>
-                  <th className="w-60 p-2 border-slate-300">SEGUIMIENTO</th>
-                  <th className="w-24 p-2 border-slate-300">FECHA</th>
-                  <th className="w-24 p-2 border-slate-300">CONTACTAR</th>
-                  <th className="w-55 p-2 border-slate-300">NOMBRE</th>
-                  <th className="w-32 p-2 border-slate-300">TELÉFONO</th>
-                  <th className="w-32 p-2 border-slate-300">PROVINCIA</th>
-                  <th className="w-32 p-2 border-slate-300">S. LABORAL</th>
-                  <th className="w-32 p-2 border-slate-300">DEUDA</th>
-                  <th className="w-30 p-2 border-slate-300">SITUA. PAGOS</th>
-                  <th className="w-24 p-2 border-slate-300">EMBARGOS</th>
-                  <th className="w-40 p-2 border-slate-300">PREOCUPACIÓN</th>
-                  <th className="w-28 p-2 border-slate-300">INGRESOS</th>
-                  <th className="w-60 p-2 border-slate-300">VIVIEN/HIPOT</th>
-                  <th className="w-28 p-2 border-slate-300">COCHE</th>
-                  <th className="w-28 p-2 border-slate-300">DEUDA PÚBL.</th>
-                  <th className="w-28 p-2 border-slate-300">HONORARIOS</th>
-                  <th className="w-28 p-2 border-slate-300">ENTRADA</th>
-                  <th className="w-24 p-2 border-slate-300">CUOTA</th>
-                  <th className="w-20 p-2 border-slate-300">N.CUOTAS</th>
-                  <th className="w-32 p-2 border-slate-300">F. 1ER PAGO</th>
-                  <th className="w-32 p-2">SITUA. FINAL</th>
+                  <th className="w-24 p-2 font-extrabold text-[#085e05]">FASE</th>
+                  <th className="w-60 p-2 font-extrabold text-[#085e05]">OBSERVACIONES</th>
+                  <th className="w-24 p-2 font-extrabold border-slate-300 text-[#ff7700]">FECHA</th>
+                  <th className="w-24 p-2 font-extrabold border-slate-300 text-[#ff7700]">CONTACTAR</th>
+                  <th className="w-55 p-2 font-extrabold border-slate-300 text-[#ff7700]">NOMBRE</th>
+                  <th className="w-32 p-2 font-extrabold border-slate-300 text-[#ff7700]">TELÉFONO</th>
+                  <th className="w-32 p-2 font-extrabold border-slate-300 text-[#ff7700]">PROVINCIA</th>
+                  <th className="w-32 p-2 font-extrabold border-slate-300 text-[#ff7700]">S. LABORAL</th>
+                  <th className="w-32 p-2 font-extrabold border-slate-300 text-[#ff7700]">DEUDA</th>
+                  <th className="w-30 p-2 font-extrabold border-slate-300 text-[#ff7700]">SITUA. PAGOS</th>
+                  <th className="w-24 p-2 font-extrabold border-slate-300 text-[#4a1500]">EMBARGOS</th>
+                  <th className="w-40 p-2 font-extrabold border-slate-300 text-[#ff7700]">PREOCUPACIÓN</th>
+                  <th className="w-28 p-2 font-extrabold border-slate-300 text-[#2575f6]">INGRESOS</th>
+                  <th className="w-60 p-2 font-extrabold border-slate-300 text-[#2575f6]">VIVIEN/HIPOT</th>
+                  <th className="w-28 p-2 font-extrabold border-slate-300 text-[#2575f6]">COCHE</th>
+                  <th className="w-28 p-2 font-extrabold border-slate-300 text-[#2575f6]">DEUDA PÚBL.</th>
+                  <th className="w-28 p-2 font-extrabold border-slate-300 text-[#4b8b16]">HONORARIOS</th>
+                  <th className="w-28 p-2 font-extrabold border-slate-300 text-[#4b8b16]">ENTRADA</th>
+                  <th className="w-24 p-2 font-extrabold border-slate-300 text-[#4b8b16]">CUOTA</th>
+                  <th className="w-20 p-2 font-extrabold border-slate-300 text-[#4b8b16]">N.CUOTAS</th>
+                  <th className="w-32 p-2 font-extrabold border-slate-300 text-[#4b8b16]">F. 1ER PAGO</th>
+                  <th className="w-32 p-2 font-extrabold text-[#bb6f17]">SITUA. FINAL</th>
 
                 </tr>
               </thead>
