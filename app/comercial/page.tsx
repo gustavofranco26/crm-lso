@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, KeyboardEvent } from "react";
 import { supabase } from "@/lib/supabase";
 import Image from 'next/image';
 import { useRouter } from "next/navigation";
@@ -52,6 +52,64 @@ export default function ComercialPage() {
   };
 
   const filterPhase = mapButtonToPhase(selectedFilterButton);
+
+  const ExpandableTextInput = ({
+    id,
+    field,
+    value,
+    placeholder,
+  }: {
+    id: string;
+    field: string;
+    value: any;
+    placeholder?: string;
+  }) => {
+    const [expanded, setExpanded] = useState(false);
+    const [text, setText] = useState(value ?? '');
+    const ref = useRef<HTMLTextAreaElement>(null);
+
+    useEffect(() => {
+      setText(value ?? '');
+    }, [value]);
+
+    const closeField = () => {
+      setExpanded(false);
+      ref.current?.blur();
+    };
+
+    const handleBlur = () => {
+      setExpanded(false);
+      updateField(id, field, text);
+    };
+
+    const handleKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        closeField();
+      }
+    };
+
+    return (
+      <textarea
+        ref={ref}
+        rows={expanded ? 4 : 1}
+        className="w-full p-1 text-center bg-transparent border-none text-[12px] resize-none overflow-hidden wrap-break-word text-slate-700"
+        placeholder={placeholder}
+        value={text}
+        onFocus={() => setExpanded(true)}
+        onBlur={handleBlur}
+        onChange={(e) => setText(e.target.value)}
+        onKeyDown={handleKeyDown}
+        style={{ whiteSpace: 'pre-wrap' }}
+      />
+    );
+  };
+
+  const dateToInputValue = (value: any) => {
+    if (!value) return '';
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? '' : date.toISOString().slice(0, 10);
+  };
 
   const getSortIcon = (field: 'provincia' | 'situacion_pagos') => {
     if (sortField !== field) return '↕';
@@ -385,11 +443,12 @@ const getStatusTextColor = (valor: string) => {
                     {/* S. LABORAL */}
                     <td className="p-2 text-center truncate text-slate-700">{lead.situacion}</td>
 
-                    <td className="p-2 text-center font-bold"><input 
-                        type="text"
-                        className="w-full p-1 text-center font-bold truncate text-slate-700"
-                        defaultValue={lead.importe_deuda}
-                        onBlur={(e) => updateField(lead.id, 'importe_deuda', e.target.value)}
+                    <td className="p-2 text-center font-bold">
+                      <ExpandableTextInput
+                        id={lead.id}
+                        field="importe_deuda"
+                        value={lead.importe_deuda}
+                        placeholder="Deuda pública"
                       />
                     </td>
                     <td className="p-2 text-center truncate text-slate-700">{lead.situacion_pagos}</td>
@@ -401,11 +460,11 @@ const getStatusTextColor = (valor: string) => {
                     
                     {/* INGRESOS */}
                     <td className="p-1 text-center truncate text-slate-700">
-                      <input 
-                        type="text" 
-                        className="w-full p-1 text-center bg-transparent"
-                        defaultValue={lead.ingresos}
-                        onBlur={(e) => updateField(lead.id, 'ingresos', e.target.value)}
+                      <ExpandableTextInput
+                        id={lead.id}
+                        field="ingresos"
+                        value={lead.ingresos}
+                        placeholder="Ingresos"
                       />
                     </td>
 
@@ -425,45 +484,48 @@ const getStatusTextColor = (valor: string) => {
                         placeholder="Escribir nota..."
                       />
                     </td>
-                    <td className="p-2 text-center font-bold"><input 
-                        type="text"
-                        className="w-full p-1 text-center font-bold truncate text-slate-700"
-                        defaultValue={lead.deuda_publica}
-                        onBlur={(e) => updateField(lead.id, 'deuda_publica', e.target.value)}
+                    <td className="p-2 text-center font-bold">
+                      <ExpandableTextInput
+                        id={lead.id}
+                        field="deuda_publica"
+                        value={lead.deuda_publica}
+                        placeholder="Deuda pública"
                       />
                     </td>
                     <td className="p-2 text-center font-bold">
-                      <input 
-                        type="text"
-                        className="w-full p-1 text-center font-bold truncate text-slate-700"
-                        defaultValue={lead.honorarios}
-                        onBlur={(e) => updateField(lead.id, 'honorarios', e.target.value)}
+                      <ExpandableTextInput
+                        id={lead.id}
+                        field="honorarios"
+                        value={lead.honorarios}
+                        placeholder="Honorarios"
                       />
                     </td>
 
                     {/* ENTRADA Y CUOTA */}
                     <td className="p-1 text-center">
-                      <input 
-                        type="text" 
-                        className="w-full p-1 text-center font-bold truncate text-slate-700"
-                        defaultValue={lead.entrada_importe}
-                        onBlur={(e) => updateField(lead.id, 'entrada_importe', e.target.value)}
+                      <ExpandableTextInput
+                        id={lead.id}
+                        field="entrada_importe"
+                        value={lead.entrada_importe}
+                        placeholder="Entrada"
                       />
                     </td>
                     <td className="p-2 text-center font-bold truncate text-slate-700">
-                      <input 
-                        type="text" 
-                        className="w-full p-1 text-center font-bold"
-                        defaultValue={lead.cuota_importe}
-                        onBlur={(e) => updateField(lead.id, 'cuota_importe', e.target.value)}
+                      <ExpandableTextInput
+                        id={lead.id}
+                        field="cuota_importe"
+                        value={lead.fecha_primera_cuota}
+                        placeholder="Cuota"
                       />
                     </td>
                     <td className="p-2 text-center truncate text-slate-700">{lead.total_cuotas}</td>
                     <td className="p-2 text-center truncate text-slate-700">
-                      {new Date(lead.fecha_primera_cuota).toLocaleDateString('es-ES', { 
-                        day: 'numeric',
-                        month: 'short'
-                      }).replace('.', '').replace(/ /g, '-').replace(/^\w|(?<=-)\w/g, (l) => l.toUpperCase())}
+                      <input
+                        type="date"
+                        className="w-full p-1 text-center bg-transparent border-none text-slate-700"
+                        defaultValue={dateToInputValue(lead.fecha_primera_cuota)}
+                        onBlur={(e) => updateField(lead.id, 'fecha_primera_cuota', e.target.value)}
+                      />
                     </td>
                     {/* SITUACION FINAL */}
                     <td className="p-1 text-center font-bold truncate text-slate-700">
