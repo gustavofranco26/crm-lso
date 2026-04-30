@@ -97,6 +97,7 @@ export default function PanelGerencia() {
               <th className="border border-gray-400 p-2 bg-[#f6b26b]">Ingresos</th>
               <th className="border border-gray-400 p-2 bg-[#ea9999]">Estado</th>
               <th className="border border-gray-400 p-2 bg-[#ea9999]">Situación Final</th>
+              <th className="border border-gray-400 p-2 bg-[#ea9999]">Asignado A:</th>
               <th className="border border-gray-400 p-2 bg-purple-600 text-white">Acciones</th>
             </tr>
           </thead>
@@ -114,6 +115,7 @@ export default function PanelGerencia() {
                   <td className="border border-gray-400 p-2 text-gray-600 font-bold">{l.ingresos || '0'}€</td>
                   <td className="border border-gray-400 p-2 text-gray-600 font-bold">{l.estado}</td>
                   <td className="border border-gray-400 p-2 text-gray-600 font-bold">{l.situacion_final}</td>
+                  <td className="border border-gray-400 p-2 text-gray-600 font-bold">{l.asignado_a}</td>
                   <td className="border border-gray-400 p-2">
                     <button onClick={() => handleAsignar(l.id)} className="bg-blue-500 text-white px-2 py-1 rounded text-[10px] hover:bg-blue-600 transition-colors">
                       Asignar
