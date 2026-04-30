@@ -8,6 +8,7 @@ import { LogOut } from "lucide-react";
 export default function ComercialPage() {
   const [leads, setLeads] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedFilterButton, setSelectedFilterButton] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -19,6 +20,36 @@ export default function ComercialPage() {
     localStorage.clear()
     router.push('/')
 }
+
+  // Mapeo de SITUACIÓN FINAL a FASE
+  const mapSituacionToFase = (situacion: string): string => {
+    switch (situacion) {
+      case 'Contratado': return 'Contratado';
+      case 'Se lo piensa': return 'Viable';
+      case 'No puede Pagar':
+      case 'Perder Coche':
+      case 'Me cuelga': return 'No Viable';
+      case 'Llamar más adelante': return 'Pendiente Llamada';
+      case '-':
+      case 'Libre':
+      default: return 'Nuevo';
+    }
+  };
+
+  const mapButtonToPhase = (button: string | null): string | null => {
+    if (!button) return null;
+    switch (button) {
+      case 'Contratado': return 'Contratado';
+      case 'Se lo piensa': return 'Viable';
+      case 'Llamar más adelante': return 'Pendiente Llamada';
+      case 'No puede Pagar':
+      case 'Perder Coche':
+      case 'Me cuelga': return 'No Viable';
+      default: return null;
+    }
+  };
+
+  const filterPhase = mapButtonToPhase(selectedFilterButton);
 
   async function fetchLeads() {
     const rawId = localStorage.getItem('user_id');
@@ -47,15 +78,23 @@ export default function ComercialPage() {
   }
 
   // Actualización en local para que el filtro lo oculte al instante
-  setLeads(prev => prev.map(l => l.id === id ? { ...l, [field]: value } : l));
+  // Si es situacion_final, también actualizamos la fase automáticamente
+  const updates = field === 'situacion_final' 
+    ? { [field]: value, estado: mapSituacionToFase(value) }
+    : { [field]: value };
+
+  setLeads(prev => prev.map(l => l.id === id ? { ...l, ...updates } : l));
 
   // Lógica de base de datos
   if (esCierre) {
     const rawId = localStorage.getItem('user_id');
     const comercialId = rawId?.replace(/['"]+/g, '');
 
-    // 1. Cerramos el lead en DB
-    await supabase.from('leads').update({ situacion_final: value, estado: 'cerrado' }).eq('id', id);
+    // 1. Cerramos el lead en DB con la fase actualizada
+    await supabase.from('leads').update({ 
+      situacion_final: value, 
+      estado: 'cerrado'
+    }).eq('id', id);
 
     // 2. Insertamos comisión
     await supabase.from('comisiones').insert([{ id_usuario: comercialId, id_lead: id, monto: 40 }]);
@@ -63,8 +102,19 @@ export default function ComercialPage() {
     alert("Acción Realizada Correctamente.");
     await fetchLeads(); // Recargamos para limpiar datos
     setLoading(false);  // Quitamos spinner
+  } else if (field === 'situacion_final') {
+    // Actualización de situacion_final sin cierre
+    const { error } = await supabase
+      .from('leads')
+      .update(updates)
+      .eq('id', id);
+
+    if (error) {
+      console.error(`Error en ${field}:`, error.message);
+      setLoading(false);
+    }
   } else {
-    // Actualización normal para otros campos (FASE, teléfono, etc)
+    // Actualización normal para otros campos (teléfono, etc)
     const { error } = await supabase
       .from('leads')
       .update({ [field]: value })
@@ -112,6 +162,80 @@ const getStatusTextColor = (valor: string) => {
               DefenCore
             </h1>
           </div>
+        </div>
+
+        {/* FILTROS: Centro */}
+        <div className="ml-6 flex items-center gap-2">
+          <button
+            onClick={() => setSelectedFilterButton(null)}
+            className={`px-3 py-1 rounded text-xs font-semibold transition-all ${
+              selectedFilterButton === null
+                ? 'bg-blue-600 text-white'
+                : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+            }`}
+          >
+            Todos
+          </button>
+          <button
+            onClick={() => setSelectedFilterButton('Contratado')}
+            className={`px-3 py-1 rounded text-xs font-semibold transition-all ${
+              selectedFilterButton === 'Contratado'
+                ? 'bg-emerald-600 text-white'
+                : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+            }`}
+          >
+            Contratado
+          </button>
+          <button
+            onClick={() => setSelectedFilterButton('Se lo piensa')}
+            className={`px-3 py-1 rounded text-xs font-semibold transition-all ${
+              selectedFilterButton === 'Se lo piensa'
+                ? 'bg-amber-500 text-white'
+                : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+            }`}
+          >
+            Se lo piensa
+          </button>
+          <button
+            onClick={() => setSelectedFilterButton('Llamar más adelante')}
+            className={`px-3 py-1 rounded text-xs font-semibold transition-all ${
+              selectedFilterButton === 'Llamar más adelante'
+                ? 'bg-orange-500 text-white'
+                : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+            }`}
+          >
+            Llamar más adelante
+          </button>
+          <button
+            onClick={() => setSelectedFilterButton('No puede Pagar')}
+            className={`px-3 py-1 rounded text-xs font-semibold transition-all ${
+              selectedFilterButton === 'No puede Pagar'
+                ? 'bg-rose-600 text-white'
+                : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+            }`}
+          >
+            No puede Pagar
+          </button>
+          <button
+            onClick={() => setSelectedFilterButton('Perder Coche')}
+            className={`px-3 py-1 rounded text-xs font-semibold transition-all ${
+              selectedFilterButton === 'Perder Coche'
+                ? 'bg-rose-700 text-white'
+                : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+            }`}
+          >
+            Perder Coche
+          </button>
+          <button
+            onClick={() => setSelectedFilterButton('Me cuelga')}
+            className={`px-3 py-1 rounded text-xs font-semibold transition-all ${
+              selectedFilterButton === 'Me cuelga'
+                ? 'bg-red-700 text-white'
+                : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+            }`}
+          >
+            Me cuelga
+          </button>
         </div>
 
         {/* SECCIÓN DERECHA: Nombre y Salir (empujados por ml-auto) */}
@@ -178,23 +302,18 @@ const getStatusTextColor = (valor: string) => {
                 ) : (
                   /* LISTADO DE LEADS FILTRADOS */
                   leads
-                    .filter(lead => !lead.situacion_final || lead.situacion_final === "Libre" || lead.situacion_final === "-")
+                    .filter(lead => {
+                      const noEsCerrado = !lead.situacion_final || lead.situacion_final === "Libre" || lead.situacion_final === "-";
+                      const coincideConFiltro = filterPhase === null || lead.estado === filterPhase;
+                      return noEsCerrado && coincideConFiltro;
+                    })
                     .map((lead) => (
                       <tr key={lead.id} className="hover:bg-blue-50/40 transition-colors border-b border-slate-100">
                     {/* FASE */}
                     <td className="p-1 text-center font-bold">
-                      <select
-                        className={`w-full p-1 text-center bg-transparent outline-none cursor-pointer ${getStatusTextColor(lead.estado)}`}
-                        value={lead.estado}
-                        onChange={(e) => updateField(lead.id, 'estado', e.target.value)}
-                      >
-                        <option className="text-blue-600" value="Nuevo">Nuevo</option>
-                        <option className="text-emerald-600" value="Contratado">Contratado</option>
-                        <option className="text-orange-500" value="Pendiente Llamada">Pendiente Llamada</option>
-                        <option className="text-amber-500" value="Ficha Pendiente">Ficha Pendiente</option>
-                        <option className="text-indigo-600" value="Viable">Viable</option>
-                        <option className="text-rose-600" value="No Viable">No Viable</option>
-                      </select>
+                      <div className={`w-full p-1 text-center ${getStatusTextColor(lead.estado)}`}>
+                        {lead.estado}
+                      </div>
                     </td>
                     
                     {/* SEGUIMIENTO */}
