@@ -9,6 +9,8 @@ export default function ComercialPage() {
   const [leads, setLeads] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedFilterButton, setSelectedFilterButton] = useState<string | null>(null);
+  const [sortField, setSortField] = useState<'provincia' | 'situacion_pagos' | null>(null);
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const router = useRouter();
 
   useEffect(() => {
@@ -50,6 +52,30 @@ export default function ComercialPage() {
   };
 
   const filterPhase = mapButtonToPhase(selectedFilterButton);
+
+  const getSortIcon = (field: 'provincia' | 'situacion_pagos') => {
+    if (sortField !== field) return '↕';
+    return sortOrder === 'asc' ? '▲' : '▼';
+  };
+
+  const handleSort = (field: 'provincia' | 'situacion_pagos') => {
+    if (sortField === field) {
+      setSortOrder(prev => (prev === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortField(field);
+      setSortOrder('asc');
+    }
+  };
+
+  const sortLeads = (items: any[]) => {
+    if (!sortField) return items;
+    return [...items].sort((a, b) => {
+      const aValue = (a[sortField] || '').toString().toLowerCase();
+      const bValue = (b[sortField] || '').toString().toLowerCase();
+      const comparison = aValue.localeCompare(bValue, 'es', { numeric: true });
+      return sortOrder === 'asc' ? comparison : -comparison;
+    });
+  };
 
   async function fetchLeads() {
     const rawId = localStorage.getItem('user_id');
@@ -246,10 +272,10 @@ const getStatusTextColor = (valor: string) => {
           
           <button
             onClick={handleLogout}
-            className="flex items-center gap-2 bg-red-50 text-red-600 px-4 py-2 rounded-md text-sm font-bold hover:bg-red-100 transition duration-200"
+            className="flex items-center gap-2 text-[#4d4d4d] px-4 py-2 rounded-md text-sm font-bold hover:text-[#2d2929] transition duration-200"
           >
             <LogOut size={16} />
-            <span>SALIR</span>
+            <span>Cerrar Sesión</span>
           </button>
         </div>
       </header>
@@ -257,32 +283,48 @@ const getStatusTextColor = (valor: string) => {
       {/* TABLA DE GESTIÓN */}
       <div className="p-4 flex-1">
         <div className="bg-white rounded-lg shadow-2xl border-slate-200 overflow-hidden">
-          <div className="overflow-x-auto max-h-[calc(100vh-120px)]">
+          <div className="overflow-x-auto overflow-y-auto" style={{ maxHeight: '42rem' }}>
             <table className="w-full text-[12px] border-collapse table-fixed">
               <thead className="text-[13px] bg-[#ffffff] sticky top-0 z-20">
                 <tr>
-                  <th className="w-24 p-2 font-extrabold text-[#085e05]">FASE</th>
-                  <th className="w-60 p-2 font-extrabold text-[#085e05]">OBSERVACIONES</th>
+                  <th className="w-24 p-2 font-extrabold text-[#097706]">FASE</th>
+                  <th className="w-50 p-2 font-extrabold text-[#097706]">OBSERVACIONES</th>
                   <th className="w-24 p-2 font-extrabold border-slate-300 text-[#ff7700]">FECHA</th>
                   <th className="w-24 p-2 font-extrabold border-slate-300 text-[#ff7700]">CONTACTAR</th>
                   <th className="w-55 p-2 font-extrabold border-slate-300 text-[#ff7700]">NOMBRE</th>
                   <th className="w-32 p-2 font-extrabold border-slate-300 text-[#ff7700]">TELÉFONO</th>
-                  <th className="w-32 p-2 font-extrabold border-slate-300 text-[#ff7700]">PROVINCIA</th>
-                  <th className="w-32 p-2 font-extrabold border-slate-300 text-[#ff7700]">S. LABORAL</th>
+                  <th className="w-32 p-2 font-extrabold border-slate-300 text-[#ff7700]">
+                    <button
+                      type="button"
+                      onClick={() => handleSort('provincia')}
+                      className="inline-flex items-center gap-1 cursor-pointer"
+                    >
+                      PROVINCIA <span>{getSortIcon('provincia')}</span>
+                    </button>
+                  </th>
+                  <th className="w-32 p-2 font-extrabold border-slate-300 text-[#ff7700]">SIT. LABORAL</th>
                   <th className="w-32 p-2 font-extrabold border-slate-300 text-[#ff7700]">DEUDA</th>
-                  <th className="w-30 p-2 font-extrabold border-slate-300 text-[#ff7700]">SITUA. PAGOS</th>
-                  <th className="w-24 p-2 font-extrabold border-slate-300 text-[#4a1500]">EMBARGOS</th>
+                  <th className="w-30 p-2 font-extrabold border-slate-300 text-[#ff7700]">
+                    <button
+                      type="button"
+                      onClick={() => handleSort('situacion_pagos')}
+                      className="inline-flex items-center gap-1 cursor-pointer"
+                    >
+                      SITUA. PAGOS <span>{getSortIcon('situacion_pagos')}</span>
+                    </button>
+                  </th>
+                  <th className="w-24 p-2 font-extrabold border-slate-300 text-[#eb2323]">EMBARGOS</th>
                   <th className="w-40 p-2 font-extrabold border-slate-300 text-[#ff7700]">PREOCUPACIÓN</th>
                   <th className="w-28 p-2 font-extrabold border-slate-300 text-[#2575f6]">INGRESOS</th>
-                  <th className="w-60 p-2 font-extrabold border-slate-300 text-[#2575f6]">VIVIEN/HIPOT</th>
+                  <th className="w-50 p-2 font-extrabold border-slate-300 text-[#2575f6]">VIVIENDA/HIPOTECA</th>
                   <th className="w-28 p-2 font-extrabold border-slate-300 text-[#2575f6]">COCHE</th>
-                  <th className="w-28 p-2 font-extrabold border-slate-300 text-[#2575f6]">DEUDA PÚBL.</th>
+                  <th className="w-28 p-2 font-extrabold border-slate-300 text-[#2575f6]">DEUD-PÚBL.</th>
                   <th className="w-28 p-2 font-extrabold border-slate-300 text-[#4b8b16]">HONORARIOS</th>
                   <th className="w-28 p-2 font-extrabold border-slate-300 text-[#4b8b16]">ENTRADA</th>
                   <th className="w-24 p-2 font-extrabold border-slate-300 text-[#4b8b16]">CUOTA</th>
                   <th className="w-20 p-2 font-extrabold border-slate-300 text-[#4b8b16]">N.CUOTAS</th>
                   <th className="w-32 p-2 font-extrabold border-slate-300 text-[#4b8b16]">F. 1ER PAGO</th>
-                  <th className="w-32 p-2 font-extrabold text-[#bb6f17]">SITUA. FINAL</th>
+                  <th className="w-32 p-2 font-extrabold text-[#af7532]">SITUA. FINAL</th>
 
                 </tr>
               </thead>
@@ -301,12 +343,13 @@ const getStatusTextColor = (valor: string) => {
                   </tr>
                 ) : (
                   /* LISTADO DE LEADS FILTRADOS */
-                  leads
-                    .filter(lead => {
+                  sortLeads(
+                    leads.filter(lead => {
                       const noEsCerrado = !lead.situacion_final || lead.situacion_final === "Libre" || lead.situacion_final === "-";
                       const coincideConFiltro = filterPhase === null || lead.estado === filterPhase;
                       return noEsCerrado && coincideConFiltro;
                     })
+                  )
                     .map((lead) => (
                       <tr key={lead.id} className="hover:bg-blue-50/40 transition-colors border-b border-slate-100">
                     {/* FASE */}
@@ -342,7 +385,13 @@ const getStatusTextColor = (valor: string) => {
                     {/* S. LABORAL */}
                     <td className="p-2 text-center truncate text-slate-700">{lead.situacion}</td>
 
-                    <td className="p-2 text-center truncate text-slate-700">{lead.importe_deuda}</td>
+                    <td className="p-2 text-center font-bold"><input 
+                        type="text"
+                        className="w-full p-1 text-center font-bold truncate text-slate-700"
+                        defaultValue={lead.importe_deuda}
+                        onBlur={(e) => updateField(lead.id, 'importe_deuda', e.target.value)}
+                      />
+                    </td>
                     <td className="p-2 text-center truncate text-slate-700">{lead.situacion_pagos}</td>
                     
                     {/* EMBARGOS */}
@@ -353,7 +402,7 @@ const getStatusTextColor = (valor: string) => {
                     {/* INGRESOS */}
                     <td className="p-1 text-center truncate text-slate-700">
                       <input 
-                        type="number" 
+                        type="text" 
                         className="w-full p-1 text-center bg-transparent"
                         defaultValue={lead.ingresos}
                         onBlur={(e) => updateField(lead.id, 'ingresos', e.target.value)}
@@ -377,18 +426,25 @@ const getStatusTextColor = (valor: string) => {
                       />
                     </td>
                     <td className="p-2 text-center font-bold"><input 
-                        type="number"
+                        type="text"
                         className="w-full p-1 text-center font-bold truncate text-slate-700"
                         defaultValue={lead.deuda_publica}
                         onBlur={(e) => updateField(lead.id, 'deuda_publica', e.target.value)}
                       />
                     </td>
-                    <td className="p-2 text-center truncate text-slate-700">{lead.honorarios || '5200'}€</td>
+                    <td className="p-2 text-center font-bold">
+                      <input 
+                        type="text"
+                        className="w-full p-1 text-center font-bold truncate text-slate-700"
+                        defaultValue={lead.honorarios}
+                        onBlur={(e) => updateField(lead.id, 'honorarios', e.target.value)}
+                      />
+                    </td>
 
                     {/* ENTRADA Y CUOTA */}
                     <td className="p-1 text-center">
                       <input 
-                        type="number" 
+                        type="text" 
                         className="w-full p-1 text-center font-bold truncate text-slate-700"
                         defaultValue={lead.entrada_importe}
                         onBlur={(e) => updateField(lead.id, 'entrada_importe', e.target.value)}
@@ -396,7 +452,7 @@ const getStatusTextColor = (valor: string) => {
                     </td>
                     <td className="p-2 text-center font-bold truncate text-slate-700">
                       <input 
-                        type="number" 
+                        type="text" 
                         className="w-full p-1 text-center font-bold"
                         defaultValue={lead.cuota_importe}
                         onBlur={(e) => updateField(lead.id, 'cuota_importe', e.target.value)}
