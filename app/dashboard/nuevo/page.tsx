@@ -40,7 +40,7 @@ export default function NuevoLead() {
       telefono: extract(/Teléfono:\s*(.*)/i),
       provincia: extract(/Provincia:\s*(.*)/i),
       estado: 'nuevo', 
-      situacion: extract(/Situacion:\s*(.*)/i), 
+      situacion: extract(/Situación:\s*(.*)/i), 
       importe_deuda: deudaBonita,
       situacion_pagos: extract(/Situación pagos:\s*(.*)/i),
       preocupacion: extract(/Preocupación:\s*(.*)/i),

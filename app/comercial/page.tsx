@@ -9,7 +9,7 @@ export default function ComercialPage() {
   const [leads, setLeads] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedFilterButton, setSelectedFilterButton] = useState<string | null>(null);
-  const [sortField, setSortField] = useState<'provincia' | 'situacion' | null>(null);
+  const [sortField, setSortField] = useState<'provincia' | 'situacion_pagos' | null>(null);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const router = useRouter();
 
@@ -105,18 +105,65 @@ export default function ComercialPage() {
     );
   };
 
+  const ServiceInterestToggle = ({
+    id,
+    value,
+  }: {
+    id: string;
+    value: any;
+  }) => {
+    const [open, setOpen] = useState(false);
+    const [selected, setSelected] = useState(value ?? 'Lso');
+
+    useEffect(() => {
+      setSelected(value || 'Lso');
+    }, [value]);
+
+    const handleSelect = (option: 'Lso' | 'Negociacion') => {
+      setSelected(option);
+      setOpen(false);
+      updateField(id, 'servicio_interes', option);
+    };
+
+    return (
+      <div className="relative inline-flex w-full justify-center">
+        <button
+          type="button"
+          onClick={() => setOpen((prev) => !prev)}
+          className="w-full rounded-md border border-slate-300 bg-white px-2 py-1 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+        >
+          {selected}
+        </button>
+        {open && (
+          <div className="absolute left-0 top-full z-20 mt-1 w-full overflow-hidden rounded-md border border-slate-200 bg-white shadow-lg">
+            {['Lso', 'Negociacion'].map((option) => (
+              <button
+                key={option}
+                type="button"
+                className="w-full px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100"
+                onClick={() => handleSelect(option as 'Lso' | 'Negociacion')}
+              >
+                {option}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   const dateToInputValue = (value: any) => {
     if (!value) return '';
     const date = new Date(value);
     return Number.isNaN(date.getTime()) ? '' : date.toISOString().slice(0, 10);
   };
 
-  const getSortIcon = (field: 'provincia' | 'situacion') => {
+  const getSortIcon = (field: 'provincia' | 'situacion_pagos') => {
     if (sortField !== field) return '↕';
     return sortOrder === 'asc' ? '▲' : '▼';
   };
 
-  const handleSort = (field: 'provincia' | 'situacion') => {
+  const handleSort = (field: 'provincia' | 'situacion_pagos') => {
     if (sortField === field) {
       setSortOrder(prev => (prev === 'asc' ? 'desc' : 'asc'));
     } else {
@@ -362,13 +409,13 @@ const getStatusTextColor = (valor: string) => {
                   </th>
                   <th className="w-50 p-2 font-extrabold border-slate-300 text-[#ff7700]">SIT-LABORAL</th>
                   <th className="w-42 p-2 font-extrabold border-slate-300 text-[#ff7700]">DEUDA</th>
-                  <th className="w-30 p-2 font-extrabold border-slate-300 text-[#ff7700]">
+                  <th className="w-50 p-2 font-extrabold border-slate-300 text-[#ff7700]">
                     <button
                       type="button"
-                      onClick={() => handleSort('situacion')}
+                      onClick={() => handleSort('situacion_pagos')}
                       className="inline-flex items-center gap-1 cursor-pointer"
                     >
-                      SIT-PAGOS <span>{getSortIcon('situacion')}</span>
+                      SIT-PAGOS <span>{getSortIcon('situacion_pagos')}</span>
                     </button>
                   </th>
                   <th className="w-24 p-2 font-extrabold border-slate-300 text-[#eb2323]">EMBARGOS</th>
@@ -377,7 +424,7 @@ const getStatusTextColor = (valor: string) => {
                   <th className="w-50 p-2 font-extrabold border-slate-300 text-[#2575f6]">VIVIENDA/HIPOTECA</th>
                   <th className="w-28 p-2 font-extrabold border-slate-300 text-[#2575f6]">COCHE</th>
                   <th className="w-28 p-2 font-extrabold border-slate-300 text-[#2575f6]">DEUD-PÚBL.</th>
-                  <th className="w-28 p-2 font-extrabold border-slate-300 text-[#4b8b16]">HONORARIOS</th>
+                  <th className="w-28 p-2 font-extrabold border-slate-300 text-[#4b8b16]">SERVICIO</th>
                   <th className="w-28 p-2 font-extrabold border-slate-300 text-[#4b8b16]">ENTRADA</th>
                   <th className="w-24 p-2 font-extrabold border-slate-300 text-[#4b8b16]">CUOTA</th>
                   <th className="w-20 p-2 font-extrabold border-slate-300 text-[#4b8b16]">N.CUOTAS</th>
@@ -491,11 +538,9 @@ const getStatusTextColor = (valor: string) => {
                       />
                     </td>
                     <td className="p-2 text-center font-bold">
-                      <ExpandableTextInput
+                      <ServiceInterestToggle
                         id={lead.id}
-                        field="honorarios"
-                        value={lead.honorarios}
-                        placeholder="Honorarios"
+                        value={lead.servicio_interes}
                       />
                     </td>
 
