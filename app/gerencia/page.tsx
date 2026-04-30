@@ -54,6 +54,12 @@ export default function PanelGerencia() {
     setMostrarModal(true)
   }
 
+  const getComercialNombre = (comercialId: string | null | undefined) => {
+    if (!comercialId) return 'Sin asignar'
+    const comercial = comerciales.find((c) => c.id === comercialId)
+    return comercial ? comercial.nombre : comercialId
+  }
+
   const ejecutarAsignacion = async (comercialId: string) => {
     if (!leadSeleccionado) return
 
@@ -115,7 +121,7 @@ export default function PanelGerencia() {
                   <td className="border border-gray-400 p-2 text-gray-600 font-bold">{l.ingresos || '0'}€</td>
                   <td className="border border-gray-400 p-2 text-gray-600 font-bold">{l.estado}</td>
                   <td className="border border-gray-400 p-2 text-gray-600 font-bold">{l.situacion_final}</td>
-                  <td className="border border-gray-400 p-2 text-gray-600 font-bold">{l.asignado_a}</td>
+                  <td className="border border-gray-400 p-2 text-gray-600 font-bold">{getComercialNombre(l.asignado_a)}</td>
                   <td className="border border-gray-400 p-2">
                     <button onClick={() => handleAsignar(l.id)} className="bg-blue-500 text-white px-2 py-1 rounded text-[10px] hover:bg-blue-600 transition-colors">
                       Asignar
