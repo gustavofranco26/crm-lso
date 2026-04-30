@@ -427,7 +427,7 @@ const getStatusTextColor = (valor: string) => {
                   <th className="w-28 p-2 font-extrabold border-slate-300 text-[#4b8b16]">SERVICIO</th>
                   <th className="w-28 p-2 font-extrabold border-slate-300 text-[#4b8b16]">ENTRADA</th>
                   <th className="w-24 p-2 font-extrabold border-slate-300 text-[#4b8b16]">CUOTA</th>
-                  <th className="w-20 p-2 font-extrabold border-slate-300 text-[#4b8b16]">N.CUOTAS</th>
+                  <th className="w-24 p-2 font-extrabold border-slate-300 text-[#4b8b16]">N.CUOTAS</th>
                   <th className="w-32 p-2 font-extrabold border-slate-300 text-[#4b8b16]">F. 1ER PAGO</th>
                   <th className="w-32 p-2 font-extrabold text-[#af7532]">SITUA. FINAL</th>
 
