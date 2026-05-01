@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useRouter } from "next/navigation";
 import { CheckIcon, LogOut } from "lucide-react";
 
+
 export default function ComercialPage() {
   const [leads, setLeads] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -12,10 +13,20 @@ export default function ComercialPage() {
   const [sortField, setSortField] = useState<'provincia' | 'situacion_pagos' | null>(null);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const router = useRouter();
+  const [filtroActual, setFiltroActual] = useState('Todos');
 
   useEffect(() => {
     fetchLeads();
   }, []);
+
+  const leadsFiltrados = leads.filter(lead => {
+  if (filtroActual === 'Todos') {
+    // Al pulsar "Todos", solo mostramos los leads que no tienen una situación final definitiva
+    return !lead.situacion_final || lead.situacion_final === 'Libre' || lead.situacion_final === '-';
+  }
+  // Al pulsar cualquier otro botón, mostramos solo los que coincidan con esa situación
+  return lead.situacion_final === filtroActual;
+});
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
@@ -190,7 +201,7 @@ export default function ComercialPage() {
     const { data, error } = await supabase
       .from('leads')
       .select('*')
-      .neq('estado', 'cerrado')
+      //.neq('estado', 'cerrado')
       .eq('asignado_a', comercialId)
       .order('fecha_creacion', { ascending: false });
 
@@ -298,75 +309,36 @@ const getStatusTextColor = (valor: string) => {
         {/* FILTROS: Centro */}
         <div className="ml-6 flex items-center gap-2">
           <button
-            onClick={() => setSelectedFilterButton(null)}
-            className={`px-3 py-1 rounded text-xs font-semibold transition-all ${
-              selectedFilterButton === null
-                ? 'bg-blue-600 text-white'
-                : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+            onClick={() => setFiltroActual('Todos')}
+            className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all border ${
+              filtroActual === 'Todos' 
+                ? 'bg-blue-600 text-white border-blue-600 shadow-sm' 
+                : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
             }`}
           >
             Todos
           </button>
-          <button
-            onClick={() => setSelectedFilterButton('Contratado')}
-            className={`px-3 py-1 rounded text-xs font-semibold transition-all ${
-              selectedFilterButton === 'Contratado'
-                ? 'bg-emerald-600 text-white'
-                : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-            }`}
-          >
-            Contratado
-          </button>
-          <button
-            onClick={() => setSelectedFilterButton('Se lo piensa')}
-            className={`px-3 py-1 rounded text-xs font-semibold transition-all ${
-              selectedFilterButton === 'Se lo piensa'
-                ? 'bg-amber-500 text-white'
-                : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-            }`}
-          >
-            Se lo piensa
-          </button>
-          <button
-            onClick={() => setSelectedFilterButton('Llamar más adelante')}
-            className={`px-3 py-1 rounded text-xs font-semibold transition-all ${
-              selectedFilterButton === 'Llamar más adelante'
-                ? 'bg-orange-500 text-white'
-                : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-            }`}
-          >
-            Llamar más adelante
-          </button>
-          <button
-            onClick={() => setSelectedFilterButton('No puede Pagar')}
-            className={`px-3 py-1 rounded text-xs font-semibold transition-all ${
-              selectedFilterButton === 'No puede Pagar'
-                ? 'bg-rose-600 text-white'
-                : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-            }`}
-          >
-            No puede Pagar
-          </button>
-          <button
-            onClick={() => setSelectedFilterButton('Perder Coche')}
-            className={`px-3 py-1 rounded text-xs font-semibold transition-all ${
-              selectedFilterButton === 'Perder Coche'
-                ? 'bg-rose-700 text-white'
-                : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-            }`}
-          >
-            Perder Coche
-          </button>
-          <button
-            onClick={() => setSelectedFilterButton('Me cuelga')}
-            className={`px-3 py-1 rounded text-xs font-semibold transition-all ${
-              selectedFilterButton === 'Me cuelga'
-                ? 'bg-red-700 text-white'
-                : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-            }`}
-          >
-            Me cuelga
-          </button>
+          {/* Botones para ver los cerrados/clasificados */}
+          {[
+            'Contratado', 
+            'Se lo piensa',  
+            'No puede Pagar',
+            'Perder Coche',
+            'Llamar más adelante',
+            'Me cuelga'
+          ].map((opcion) => (
+            <button
+              key={opcion}
+              onClick={() => setFiltroActual(opcion)}
+              className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all border ${
+                filtroActual === opcion 
+                  ? 'bg-blue-600 text-white border-blue-600 shadow-sm' 
+                  : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+              }`}
+            >
+              {opcion}
+            </button>
+          ))}
         </div>
 
         {/* SECCIÓN DERECHA: Nombre y Salir (empujados por ml-auto) */}
@@ -451,13 +423,19 @@ const getStatusTextColor = (valor: string) => {
                   /* LISTADO DE LEADS FILTRADOS */
                   sortLeads(
                     leads.filter(lead => {
-                      const noEsCerrado = !lead.situacion_final || lead.situacion_final === "Libre" || lead.situacion_final === "-";
-                      const coincideConFiltro = filterPhase === null || lead.estado === filterPhase;
-                      return noEsCerrado && coincideConFiltro;
+                      // 1. Lógica para el botón "Todos" (Vivos)
+                      if (filtroActual === 'Todos') {
+                        const noEsCerrado = !lead.situacion_final || lead.situacion_final === "Libre" || lead.situacion_final === "-";
+                        const coincideConFase = filterPhase === null || lead.estado === filterPhase;
+                        return noEsCerrado && coincideConFase;
+                      }
+
+                      // 2. Lógica para los botones específicos (Contratado, Me cuelga, etc.)
+                      // Aquí mostramos solo los que coinciden exactamente con el botón pulsado
+                      return lead.situacion_final === filtroActual;
                     })
-                  )
-                    .map((lead) => (
-                      <tr key={lead.id} className="hover:bg-blue-50/40 transition-colors border-b border-slate-100">
+                  ).map((lead) => (
+                    <tr key={lead.id} className="hover:bg-blue-50/40 transition-colors border-b border-slate-100">
                     {/* FASE */}
                     <td className="p-1 text-center font-bold">
                       <div className={`w-full p-1 text-center ${getStatusTextColor(lead.estado)}`}>

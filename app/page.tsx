@@ -61,9 +61,9 @@ export default function Login() {
           <p className="text-slate-500 uppercase tracking-widest text-xs">Acceso Profesionales</p>
         </div>
         
-        <div className="space-y-4">
+        <div className="space-y-4 text-[#000000]">
           <input 
-            type="text" 
+            type="text"
             placeholder="Nombre y Apellido"
             className="w-full p-4 bg-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
             onChange={(e) => setUsuario(e.target.value)}
