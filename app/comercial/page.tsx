@@ -17,15 +17,16 @@ export default function ComercialPage() {
   const [filtroActual, setFiltroActual] = useState('Todos');
 
   useEffect(() => {
-    fetchLeads();
-  }, []);
+    const inicializarPagina = async () => {
+      const rawId = localStorage.getItem('user_id');
+      const userId = rawId?.replace(/['"]+/g, '');
 
-  useEffect(() => {
-  const fetchUsuario = async () => {
-    // 1. Obtenemos el ID del usuario actual (del localStorage o de la sesión)
-    const userId = localStorage.getItem('user_id'); 
-    
-    if (userId) {
+      if (!userId) {
+        router.push('/'); // Si no hay ID, redirigir al login
+        return;
+      }
+
+      // 1. Traer nombre del comercial
       const { data, error } = await supabase
         .from('usuarios')
         .select('nombre')
@@ -35,13 +36,15 @@ export default function ComercialPage() {
       if (data && !error) {
         setNombreComercial(data.nombre);
       } else {
-        setNombreComercial('Usuario');
+        setNombreComercial('Comercial');
       }
-    }
-  };
 
-  fetchUsuario();
-}, []);
+      // 2. Traer los leads
+      await fetchLeads();
+    };
+
+    inicializarPagina();
+  }, []);
 
   const leadsFiltrados = leads.filter(lead => {
   if (filtroActual === 'Todos') {
@@ -259,7 +262,8 @@ export default function ComercialPage() {
     // 1. Cerramos el lead en DB con la fase actualizada
     await supabase.from('leads').update({ 
       situacion_final: value, 
-      estado: 'cerrado'
+      estado: 'cerrado',
+      fecha_contratado: value === 'Contratado' ? new Date().toISOString() : null // Solo ponemos fecha si es Contratado
     }).eq('id', id);
 
     // 2. Insertamos comisión
@@ -411,6 +415,7 @@ const getStatusTextColor = (valor: string) => {
               <thead className="text-[13px] bg-[#ffffff] sticky top-0 z-20">
                 <tr>
                   <th className="w-24 p-2 font-extrabold text-[#097706]">FASE</th>
+                  <th className="w-28 p-2 font-extrabold text-[#097706]">F. CONTRAT.</th>
                   <th className="w-50 p-2 font-extrabold text-[#097706]">OBSERVACIONES</th>
                   <th className="w-24 p-2 font-extrabold border-slate-300 text-[#ff7700]">FECHA</th>
                   <th className="w-24 p-2 font-extrabold border-slate-300 text-[#ff7700]">CONTACTAR</th>
@@ -487,6 +492,10 @@ const getStatusTextColor = (valor: string) => {
                       <div className={`w-full p-1 text-center ${getStatusTextColor(lead.estado)}`}>
                         {lead.estado}
                       </div>
+                    </td>
+                    {/* OBSERVACIONES */}
+                    <td className="p-1 text-center text-slate-500 text-[10px]">
+                      {lead.fecha_contratado ? new Date(lead.fecha_contratado).toLocaleDateString('es-ES') : '-'}
                     </td>
                     
                     {/* SEGUIMIENTO */}
