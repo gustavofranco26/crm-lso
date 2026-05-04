@@ -10,6 +10,7 @@ export default function PanelGerencia() {
   const [comerciales, setComerciales] = useState<any[]>([])
   const [mostrarModal, setMostrarModal] = useState(false)
   const [leadSeleccionado, setLeadSeleccionado] = useState<string | null>(null)
+  const [selectedComercialFilter, setSelectedComercialFilter] = useState('Todos')
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
@@ -60,6 +61,21 @@ export default function PanelGerencia() {
     return comercial ? comercial.nombre : comercialId
   }
 
+  const isOpenLead = (lead: any) => !lead.situacion_final || lead.situacion_final === 'Libre' || lead.situacion_final === '-'
+  const openLeadCount = leads.filter(isOpenLead).length
+  const comercialOpenCounts = leads.reduce((acc, lead) => {
+    if (!isOpenLead(lead)) return acc
+    const key = lead.asignado_a || 'Sin asignar'
+    acc[key] = (acc[key] || 0) + 1
+    return acc
+  }, {} as Record<string, number>)
+
+  const filteredLeads = leads.filter((lead) => {
+    if (!isOpenLead(lead)) return false
+    if (selectedComercialFilter === 'Todos') return true
+    return getComercialNombre(lead.asignado_a) === selectedComercialFilter
+  })
+
   const ejecutarAsignacion = async (comercialId: string) => {
     if (!leadSeleccionado) return
 
@@ -79,19 +95,57 @@ export default function PanelGerencia() {
 
   return (
     <div className="bg-white min-h-screen relative">
-      <header className="bg-[#4a86e8] p-4 text-white flex justify-between items-center shadow-md">
-        <div className="flex-1 text-center font-bold text-2xl tracking-[0.2em] ml-20">
-          VISTA - RESUMEN GERENCIA
+      <header className="bg-[#4a86e8] p-4 text-white shadow-md">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex flex-col gap-3">
+            <div className="text-center lg:text-left font-bold text-2xl tracking-[0.2em]">
+              VISTA - RESUMEN GERENCIA
+            </div>
+            <div className="flex flex-wrap items-center justify-center gap-2">
+              <button
+                type="button"
+                onClick={() => setSelectedComercialFilter('Todos')}
+                className={`rounded-full border px-3 py-2 text-[12px] font-semibold transition ${selectedComercialFilter === 'Todos' ? 'bg-white text-slate-800 border-white shadow-sm' : 'bg-blue-600 text-white border-transparent hover:bg-blue-500'}`}>
+                Todos
+                <span className="ml-2 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-white px-2 text-[11px] font-semibold text-slate-900">
+                  {openLeadCount}
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setSelectedComercialFilter('Sin asignar')}
+                className={`rounded-full border px-3 py-2 text-[12px] font-semibold transition ${selectedComercialFilter === 'Sin asignar' ? 'bg-white text-slate-800 border-white shadow-sm' : 'bg-blue-600 text-white border-transparent hover:bg-blue-500'}`}>
+                Sin asignar
+                <span className="ml-2 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-white px-2 text-[11px] font-semibold text-slate-900">
+                  {comercialOpenCounts['Sin asignar'] ?? 0}
+                </span>
+              </button>
+              {comerciales.map((comercial) => (
+                <button
+                  key={comercial.id}
+                  type="button"
+                  onClick={() => setSelectedComercialFilter(comercial.nombre)}
+                  className={`rounded-full border px-3 py-2 text-[12px] font-semibold transition ${selectedComercialFilter === comercial.nombre ? 'bg-white text-slate-800 border-white shadow-sm' : 'bg-blue-600 text-white border-transparent hover:bg-blue-500'}`}>
+                  {comercial.nombre}
+                  <span className="ml-2 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-white px-2 text-[11px] font-semibold text-slate-900">
+                    {comercialOpenCounts[comercial.id] ?? 0}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
+            <Link href="/dashboard/nuevo" className="bg-gray-600 text-white px-4 py-3 rounded-lg hover:bg-blue-700 transition">
+              Nuevo Lead
+            </Link>
+            <button 
+              onClick={handleLogout}
+              className="bg-red-500 hover:bg-red-600 text-white font-bold px-2 py-3 rounded-lg transition-all uppercase shadow-sm"
+            >
+              Cerrar Sesión
+            </button>
+          </div>
         </div>
-        <Link href="/dashboard/nuevo" className="bg-gray-600 text-white  px-4 py-3 rounded-lg hover:bg-blue-700 transition">
-          Nuevo Lead
-        </Link>
-        <button 
-          onClick={handleLogout}
-          className="bg-red-500 hover:bg-red-600 text-white font-bold px-2 py-3 rounded-lg transition-all uppercase shadow-sm"
-        >
-          Cerrar Sesión
-        </button>
       </header>
       <div className="overflow-x-auto p-4">
         <table className="w-full border-collapse border border-gray-400 text-sm">
@@ -108,12 +162,12 @@ export default function PanelGerencia() {
             </tr>
           </thead>
           <tbody>
-            {leads.length === 0 ? (
+            {filteredLeads.length === 0 ? (
               <tr>
-                <td colSpan={6} className="text-center p-10 text-gray-800">No hay leads registrados todavía.</td>
+                <td colSpan={6} className="text-center p-10 text-gray-800">No hay leads abiertos para este filtro.</td>
               </tr>
             ) : (
-              leads.map((l) => (
+              filteredLeads.map((l) => (
                 <tr key={l.id} className="text-center hover:bg-slate-100">
                   <td className="border border-gray-400 p-2 text-gray-600 font-bold ">{l.nombre_completo}</td>
                   <td className="border border-gray-400 p-2 text-gray-600 font-bold bg-[#fff2cc]">{l.provincia}</td>

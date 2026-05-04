@@ -14,7 +14,7 @@ export default function ComercialPage() {
   const [sortField, setSortField] = useState<'provincia' | 'situacion_pagos' | null>(null);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const router = useRouter();
-  const [filtroActual, setFiltroActual] = useState('Todos');
+  const [filtroActual, setFiltroActual] = useState('Nuevos');
 
   useEffect(() => {
     const inicializarPagina = async () => {
@@ -47,8 +47,8 @@ export default function ComercialPage() {
   }, []);
 
   const leadsFiltrados = leads.filter(lead => {
-  if (filtroActual === 'Todos') {
-    // Al pulsar "Todos", solo mostramos los leads que no tienen una situación final definitiva
+  if (filtroActual === 'Nuevos') {
+    // Al pulsar "Nuevos", solo mostramos los leads que no tienen una situación final definitiva
     return !lead.situacion_final || lead.situacion_final === 'Libre' || lead.situacion_final === '-';
   }
   // Al pulsar cualquier otro botón, mostramos solo los que coincidan con esa situación
@@ -68,6 +68,9 @@ export default function ComercialPage() {
       case 'Se lo piensa': return 'Viable';
       case 'No puede Pagar':
       case 'Perder Coche':
+      case 'Perder Vivienda':
+      case 'No contesta':
+      case 'No tiene Solución':
       case 'Me cuelga': return 'No Viable';
       case 'Llamar más adelante': return 'Pendiente Llamada';
       case '-':
@@ -84,12 +87,39 @@ export default function ComercialPage() {
       case 'Llamar más adelante': return 'Pendiente Llamada';
       case 'No puede Pagar':
       case 'Perder Coche':
+      case 'Perder Vivienda':
+      case 'No contesta':
+      case 'No tiene Solución':
       case 'Me cuelga': return 'No Viable';
       default: return null;
     }
   };
 
   const filterPhase = mapButtonToPhase(selectedFilterButton);
+
+  const filtroOptions = [
+    'Nuevos',
+    'Contratado',
+    'Se lo piensa',
+    'No puede Pagar',
+    'Perder Coche',
+    'Perder Vivienda',
+    'Llamar más adelante',
+    'No contesta',
+    'No tiene Solución',
+    'Me cuelga',
+  ];
+
+  const statusCounts = leads.reduce((acc, lead) => {
+    const situacion = lead.situacion_final || 'Libre';
+    acc[situacion] = (acc[situacion] || 0) + 1;
+
+    if (!lead.situacion_final || lead.situacion_final === 'Libre' || lead.situacion_final === '-') {
+      acc.Nuevos = (acc.Nuevos || 0) + 1;
+    }
+
+    return acc;
+  }, {} as Record<string, number>);
 
   const ExpandableTextInput = ({
     id,
@@ -298,16 +328,19 @@ export default function ComercialPage() {
 };
 
 const getFilterButtonClasses = (opcion: string) => {
-  const base = 'px-4 py-1.5 rounded-full text-xs font-bold transition-all border';
+  const base = 'px-4 py-1.5 rounded-full text-xs font-bold transition-all border inline-flex items-center gap-2';
 
   const styles: Record<string, string> = {
     Contratado: 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100',
     'Se lo piensa': 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100',
     'No puede Pagar': 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100',
     'Perder Coche': 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100',
-    'Me cuelga': 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100',
+    'Perder Vivienda': 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100',
+    'No contesta': 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100',
+    'No tiene Solución': 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100',
     'Llamar más adelante': 'bg-orange-50 text-orange-700 border-orange-200 hover:bg-orange-100',
-    Todos: 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100',
+    'Me cuelga': 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100',
+    Nuevos: 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100',
   };
 
   const activeStyles: Record<string, string> = {
@@ -315,9 +348,11 @@ const getFilterButtonClasses = (opcion: string) => {
     'Se lo piensa': 'bg-amber-600 text-white border-amber-600 shadow-sm',
     'No puede Pagar': 'bg-rose-600 text-white border-rose-600 shadow-sm',
     'Perder Coche': 'bg-rose-600 text-white border-rose-600 shadow-sm',
-    'Me cuelga': 'bg-rose-600 text-white border-rose-600 shadow-sm',
+    'Perder Vivienda': 'bg-rose-600 text-white border-rose-600 shadow-sm',
+    'No contesta': 'bg-rose-600 text-white border-rose-600 shadow-sm',
+    'No tiene Solución': 'bg-rose-600 text-white border-rose-600 shadow-sm',
     'Llamar más adelante': 'bg-orange-600 text-white border-orange-600 shadow-sm',
-    Todos: 'bg-blue-600 text-white border-blue-600 shadow-sm',
+    'Me cuelga': 'bg-rose-600 text-white border-rose-600 shadow-sm',
   };
 
   return `${base} ${filtroActual === opcion ? activeStyles[opcion] ?? styles[opcion] : styles[opcion] ?? 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}`;
@@ -332,6 +367,10 @@ const getStatusTextColor = (valor: string) => {
     case 'Viable': return 'text-indigo-600';
     case 'No Viable': 
     case 'No puede Pagar':
+    case 'Perder Coche':
+    case 'Perder Vivienda':
+    case 'No contesta':
+    case 'No tiene Solución':
     case 'Me cuelga': return 'text-rose-600';
     case 'Ficha Pendiente': 
     case 'Se lo piensa': return 'text-amber-500';
@@ -361,32 +400,17 @@ const getStatusTextColor = (valor: string) => {
         </div>
 
         {/* FILTROS: Centro */}
-        <div className="ml-6 flex items-center gap-2">
-          <button
-            onClick={() => setFiltroActual('Todos')}
-            className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all border ${
-              filtroActual === 'Todos' 
-                ? 'bg-blue-600 text-white border-blue-600 shadow-sm' 
-                : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
-            }`}
-          >
-            Todos
-          </button>
-          {/* Botones para ver los cerrados/clasificados */}
-          {[
-            'Contratado', 
-            'Se lo piensa',  
-            'No puede Pagar',
-            'Perder Coche',
-            'Llamar más adelante',
-            'Me cuelga'
-          ].map((opcion) => (
+        <div className="ml-6 flex flex-wrap items-center gap-2">
+          {filtroOptions.map((opcion) => (
             <button
               key={opcion}
               onClick={() => setFiltroActual(opcion)}
               className={getFilterButtonClasses(opcion)}
             >
-              {opcion}
+              <span>{opcion}</span>
+              <span className="inline-flex h-5 min-w-1.25 items-center justify-center rounded-full bg-white px-2 text-[11px] font-semibold text-slate-900">
+                {statusCounts[opcion] ?? 0}
+              </span>
             </button>
           ))}
         </div>
@@ -474,8 +498,8 @@ const getStatusTextColor = (valor: string) => {
                   /* LISTADO DE LEADS FILTRADOS */
                   sortLeads(
                     leads.filter(lead => {
-                      // 1. Lógica para el botón "Todos" (Vivos)
-                      if (filtroActual === 'Todos') {
+                      // 1. Lógica para el botón "Nuevos" (Vivos)
+                      if (filtroActual === 'Nuevos') {
                         const noEsCerrado = !lead.situacion_final || lead.situacion_final === "Libre" || lead.situacion_final === "-";
                         const coincideConFase = filterPhase === null || lead.estado === filterPhase;
                         return noEsCerrado && coincideConFase;
@@ -633,6 +657,9 @@ const getStatusTextColor = (valor: string) => {
                         <option className="text-amber-500" value="Se lo piensa">Se lo piensa</option>
                         <option className="text-rose-600" value="No puede Pagar">No puede Pagar</option>
                         <option className="text-rose-600" value="Perder Coche">Perder Coche</option>
+                        <option className="text-rose-600" value="Perder Vivienda">Perder Vivienda</option>
+                        <option className="text-rose-600" value="No contesta">No contesta</option>
+                        <option className="text-rose-600" value="No tiene Solución">No tiene Solución</option>
                         <option className="text-orange-500" value="Llamar más adelante">Llamar más adelante</option>
                         <option className="text-rose-600" value="Me cuelga">Me cuelga</option>
                       </select>
