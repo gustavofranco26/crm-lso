@@ -269,6 +269,32 @@ export default function ComercialPage() {
   }
 };
 
+const getFilterButtonClasses = (opcion: string) => {
+  const base = 'px-4 py-1.5 rounded-full text-xs font-bold transition-all border';
+
+  const styles: Record<string, string> = {
+    Contratado: 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100',
+    'Se lo piensa': 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100',
+    'No puede Pagar': 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100',
+    'Perder Coche': 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100',
+    'Me cuelga': 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100',
+    'Llamar más adelante': 'bg-orange-50 text-orange-700 border-orange-200 hover:bg-orange-100',
+    Todos: 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100',
+  };
+
+  const activeStyles: Record<string, string> = {
+    Contratado: 'bg-emerald-600 text-white border-emerald-600 shadow-sm',
+    'Se lo piensa': 'bg-amber-600 text-white border-amber-600 shadow-sm',
+    'No puede Pagar': 'bg-rose-600 text-white border-rose-600 shadow-sm',
+    'Perder Coche': 'bg-rose-600 text-white border-rose-600 shadow-sm',
+    'Me cuelga': 'bg-rose-600 text-white border-rose-600 shadow-sm',
+    'Llamar más adelante': 'bg-orange-600 text-white border-orange-600 shadow-sm',
+    Todos: 'bg-blue-600 text-white border-blue-600 shadow-sm',
+  };
+
+  return `${base} ${filtroActual === opcion ? activeStyles[opcion] ?? styles[opcion] : styles[opcion] ?? 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}`;
+};
+
 const getStatusTextColor = (valor: string) => {
   switch (valor) {
     case 'Nuevo': return 'text-blue-600';
@@ -330,11 +356,7 @@ const getStatusTextColor = (valor: string) => {
             <button
               key={opcion}
               onClick={() => setFiltroActual(opcion)}
-              className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all border ${
-                filtroActual === opcion 
-                  ? 'bg-blue-600 text-white border-blue-600 shadow-sm' 
-                  : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
-              }`}
+              className={getFilterButtonClasses(opcion)}
             >
               {opcion}
             </button>
