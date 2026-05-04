@@ -524,11 +524,11 @@ const getStatusTextColor = (valor: string) => {
                     
                     {/* SEGUIMIENTO */}
                     <td className="p-1">
-                      <textarea 
-                        className="w-full truncate text-slate-700 h-8 p-1 text-center bg-transparent border-none text-[10px] resize-y "
-                        defaultValue={lead.seguimiento}
-                        onBlur={(e) => updateField(lead.id, 'seguimiento', e.target.value)}
-                        placeholder="Escribir nota..."
+                      <ExpandableTextInput
+                        id={lead.id}
+                        field="seguimiento"
+                        value={lead.seguimiento}
+                        placeholder="Añadir nota..."
                       />
                     </td>
 
@@ -572,18 +572,18 @@ const getStatusTextColor = (valor: string) => {
                     </td>
 
                     <td className="p-2 text-center">
-                      <textarea 
-                        className="w-full h-8 p-1 text-center truncate text-slate-700 bg-transparent border-none text-[10px] resize-y "
-                        defaultValue={lead.vivienda_propiedad}
-                        onBlur={(e) => updateField(lead.id, 'seguimiento', e.target.value)}
+                      <ExpandableTextInput
+                        id={lead.id}
+                        field="vivienda_propiedad"
+                        value={lead.vivienda_propiedad}
                         placeholder="Escribir nota..."
                       />
                     </td>
                     <td className="p-2 text-center">
-                      <textarea 
-                        className="w-full h-8 p-1 text-center truncate text-slate-700 bg-transparent border-none text-[10px] resize-y "
-                        defaultValue={lead.coche}
-                        onBlur={(e) => updateField(lead.id, 'seguimiento', e.target.value)}
+                      <ExpandableTextInput
+                        id={lead.id}
+                        field="coche"
+                        value={lead.coche}
                         placeholder="Escribir nota..."
                       />
                     </td>
