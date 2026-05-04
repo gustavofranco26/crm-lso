@@ -8,6 +8,7 @@ import { CheckIcon, LogOut } from "lucide-react";
 
 export default function ComercialPage() {
   const [leads, setLeads] = useState<any[]>([]);
+  const [nombreComercial, setNombreComercial] = useState<string>('Cargando...');
   const [loading, setLoading] = useState(true);
   const [selectedFilterButton, setSelectedFilterButton] = useState<string | null>(null);
   const [sortField, setSortField] = useState<'provincia' | 'situacion_pagos' | null>(null);
@@ -18,6 +19,29 @@ export default function ComercialPage() {
   useEffect(() => {
     fetchLeads();
   }, []);
+
+  useEffect(() => {
+  const fetchUsuario = async () => {
+    // 1. Obtenemos el ID del usuario actual (del localStorage o de la sesión)
+    const userId = localStorage.getItem('user_id'); 
+    
+    if (userId) {
+      const { data, error } = await supabase
+        .from('usuarios')
+        .select('nombre')
+        .eq('id', userId)
+        .single();
+
+      if (data && !error) {
+        setNombreComercial(data.nombre);
+      } else {
+        setNombreComercial('Usuario');
+      }
+    }
+  };
+
+  fetchUsuario();
+}, []);
 
   const leadsFiltrados = leads.filter(lead => {
   if (filtroActual === 'Todos') {
@@ -365,8 +389,8 @@ const getStatusTextColor = (valor: string) => {
 
         {/* SECCIÓN DERECHA: Nombre y Salir (empujados por ml-auto) */}
         <div className="ml-auto flex items-center gap-6">
-          <span className="text-slate-600 font-medium hidden lg:block text-sm">
-            Luis Ramos Valcárcel
+          <span className="text-slate-600 font-medium hidden lg:block text-sm italic">
+            {nombreComercial}
           </span>
           
           <button
