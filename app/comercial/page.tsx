@@ -10,6 +10,7 @@ interface Lead {
   asignado_a?: string | null;
   situacion_final?: string | null;
   estado?: string | null;
+  fase?: string | null;
   fecha_contratado?: string | null;
   seguimiento?: string | null;
   fecha_creacion?: string | null;
@@ -326,7 +327,7 @@ const getFilterButtonClasses = (opcion: string) => {
 
   const styles: Record<string, string> = {
     'En Gestión': 'bg-slate-50 text-slate-700  hover:bg-slate-100',    
-    Contratado: 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100',
+    Contratado: 'bg-emerald-50 text-green-700 border-emerald-200 hover:bg-emerald-100',
     'Llamar más adelante': 'bg-orange-50 text-orange-700 border-orange-200 hover:bg-orange-100',
     'No puede Pagar': 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100',
     'Perder Coche': 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100',
@@ -337,7 +338,7 @@ const getFilterButtonClasses = (opcion: string) => {
   };
 
   const activeStyles: Record<string, string> = {
-    'En Gestión': 'bg-slate-600 text-black border-slate-600 shadow-sm',
+    'En Gestión': 'bg-slate-200 text-black border-slate-600 shadow-sm',
     Contratado: 'bg-emerald-600 text-black border-emerald-600 shadow-sm',
     'Llamar más adelante': 'bg-orange-600 text-black border-orange-600 shadow-sm',
     'No puede Pagar': 'bg-rose-600 text-black border-rose-600 shadow-sm',
@@ -434,10 +435,10 @@ const getStatusTextColor = (valor?: string | null) => {
           <button
             type="button"
             onClick={() => setFilterDropdownOpen((prev) => !prev)}
-            className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+            className={`${getFilterButtonClasses(filtroActual)} inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold shadow-sm`}
           >
             <span>{filtroActual}</span>
-            <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-slate-100 px-2 text-[11px] font-semibold text-slate-900">
+            <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-white px-2 text-[11px] font-semibold text-slate-900">
               {statusCounts[filtroActual] ?? 0}
             </span>
           </button>
@@ -561,13 +562,13 @@ const getStatusTextColor = (valor?: string | null) => {
                       <div className="relative inline-flex w-full justify-center">
                         <button
                           type="button"
-                          className="w-full rounded-full border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                          className={`${getFaseButtonClasses((lead.fase as FaseOption) || 'Nuevo', true)} w-25`}
                           onClick={() => setFaseDropdownOpenId(prev => prev === lead.id ? null : lead.id)}
                         >
-                          {lead.estado || 'Nuevo'}
+                          {lead.fase || 'Nuevo'}
                         </button>
                         {faseDropdownOpenId === lead.id && (
-                          <div className="absolute left-1/2 top-full z-30 mt-2 w-56 -translate-x-1/2 rounded-2xl border border-slate-200 bg-white p-2 shadow-xl">
+                          <div className="absolute left-1/2 top-full z-30 mt-2 w-40 -translate-x-1/2 rounded-2xl border border-slate-200 bg-white p-2 shadow-xl">
                             {faseOptions.map((option) => {
                               const active = lead.fase === option;
                               return (
