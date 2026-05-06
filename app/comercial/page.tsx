@@ -14,7 +14,6 @@ interface Lead {
   fecha_contratado?: string | null;
   seguimiento?: string | null;
   fecha_creacion?: string | null;
-  fecha_asignado_a?: string | null;
   horario_llamada?: string | null;
   nombre_completo?: string | null;
   telefono?: string | null;
@@ -253,33 +252,14 @@ export default function ComercialPage() {
     const comercialId = rawId?.replace(/['"]+/g, '');
     if (!comercialId) return;
 
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from('leads')
       .select('*')
       //.neq('estado', 'cerrado')
       .eq('asignado_a', comercialId)
-      .order('fecha_asignado_a', { ascending: false })
       .order('fecha_creacion', { ascending: false });
 
-    if (error) {
-      console.error('fetchLeads error:', error.message);
-      const { data: fallbackData, error: fallbackError } = await supabase
-        .from('leads')
-        .select('*')
-        .eq('asignado_a', comercialId)
-        .order('fecha_creacion', { ascending: false });
-
-      if (fallbackError) {
-        console.error('fetchLeads fallback error:', fallbackError.message);
-      }
-
-      if (fallbackData) {
-        setLeads(fallbackData as Lead[]);
-      }
-    } else if (data) {
-      setLeads(data as Lead[]);
-    }
-
+    if (data) setLeads(data as Lead[]);
     setLoading(false);
   }
 
@@ -507,12 +487,12 @@ const getStatusTextColor = (valor?: string | null) => {
             <table className="w-full text-[12px] border-collapse table-fixed">
               <thead className="text-[13px] bg-[#ffffff] sticky top-0 z-20">
                 <tr>
-                  <th className="sticky left-0 z-30 w-40 p-2 font-extrabold bg-white text-[#097706] border-slate-200" style={{ left: 0 }}>FASE</th>
-                  <th className="sticky z-30 w-50 p-2 font-extrabold bg-white text-[#097706] border-slate-200" style={{ left: 160 }}>OBSERVACIONES</th>
-                  <th className="sticky z-30 w-24 p-2 font-extrabold bg-white border-slate-300 text-[#ff7700]" style={{ left: 360 }}>FECHA</th>
-                  <th className="sticky z-30 w-24 p-2 font-extrabold bg-white border-slate-300 text-[#ff7700]" style={{ left: 456 }}>CONTACTAR</th>
-                  <th className="sticky z-30 w-55 p-2 font-extrabold bg-white border-slate-300 text-[#ff7700]" style={{ left: 552 }}>NOMBRE COMPLETO</th>
-                  <th className="sticky z-30 w-32 p-2 font-extrabold bg-white border-slate-300 text-[#ff7700]" style={{ left: 772 }}>TELÉFONO</th>
+                  <th className="w-40 p-2 font-extrabold text-[#097706]">FASE</th>
+                  <th className="w-50 p-2 font-extrabold text-[#097706]">OBSERVACIONES</th>
+                  <th className="w-24 p-2 font-extrabold border-slate-300 text-[#ff7700]">FECHA</th>
+                  <th className="w-24 p-2 font-extrabold border-slate-300 text-[#ff7700]">CONTACTAR</th>
+                  <th className="w-55 p-2 font-extrabold border-slate-300 text-[#ff7700]">NOMBRE COMPLETO</th>
+                  <th className="w-32 p-2 font-extrabold border-slate-300 text-[#ff7700]">TELÉFONO</th>
                   <th className="w-32 p-2 font-extrabold border-slate-300 text-[#ff7700]">
                     <button
                       type="button"
@@ -578,7 +558,7 @@ const getStatusTextColor = (valor?: string | null) => {
                   ).map((lead) => (
                     <tr key={lead.id} className="hover:bg-blue-50/40 transition-colors border-b border-slate-100">
                     {/* FASE */}
-                    <td className="sticky left-0 z-20 p-1 text-center font-bold bg-white border-slate-200" style={{ left: 0 }}>
+                    <td className="p-1 text-center font-bold">
                       <div className="relative inline-flex w-full justify-center">
                         <button
                           type="button"
@@ -611,7 +591,7 @@ const getStatusTextColor = (valor?: string | null) => {
                     </td>
                     {/* OBSERVACIONES */}
 
-                    <td className="sticky z-20 p-1 bg-white border-slate-200" style={{ left: 160 }}>
+                    <td className="p-1">
                       <ExpandableTextInput
                         id={lead.id}
                         field="seguimiento"
@@ -620,20 +600,18 @@ const getStatusTextColor = (valor?: string | null) => {
                       />
                     </td>
                     {/* FECHA CREACIÓN */}
-                    <td className="sticky z-20 p-2 text-center truncate text-slate-700 bg-white border-slate-200" style={{ left: 360 }}>
+                    <td className="p-2 text-center truncate text-slate-700">
                       {lead.fecha_creacion ? new Date(lead.fecha_creacion).toLocaleDateString('es-ES', { 
                         day: 'numeric',
                         month: 'short'
                       }).replace('.', '').replace(/ /g, '-').replace(/^\w|(?<=-)\w/g, (l) => l.toUpperCase()) : '-'}
                     </td>
                     {/* HORARIO DE LLAMADA */}
-                    <td className="sticky z-20 p-2 text-center truncate text-slate-700 bg-white border-slate-200" style={{ left: 456 }}>{lead.horario_llamada}</td>
+                    <td className="p-2 text-center truncate text-slate-700">{lead.horario_llamada}</td>
                     {/* NOMBRE COMPLETO */}
-                    <td className="sticky z-20 p-2 text-center font-semibold truncate text-slate-700 bg-white border-slate-200" style={{ left: 552 }}>
-                      {lead.nombre_completo}
-                    </td>
+                    <td className="p-2 text-center font-semibold truncate text-slate-700">{lead.nombre_completo}</td>
                     {/* TELÉFONO */}
-                    <td className="sticky z-20 p-2 font-medium text-center truncate text-slate-700 bg-white border-slate-200" style={{ left: 772 }}>
+                    <td className="p-2 font-medium text-center truncate text-slate-700">
                       {lead.telefono ? lead.telefono.replace('+34', '').trim() : ''}
                     </td>
                     {/* PROVINCIA */}
