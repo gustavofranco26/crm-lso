@@ -336,6 +336,7 @@ const getFilterButtonClasses = (opcion: string) => {
   const styles: Record<string, string> = {
     'En Gestión': 'bg-slate-50 text-slate-700  hover:bg-slate-100',    
     Contratado: 'bg-emerald-50 text-green-700 border-emerald-200 hover:bg-emerald-100',
+    'Caliente': 'bg-yellow-50 text-yellow-700 border-yellow-200 hover:bg-yellow-100',
     'Llamar más adelante': 'bg-orange-50 text-orange-700 border-orange-200 hover:bg-orange-100',
     'No puede Pagar': 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100',
     'Perder Coche': 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100',
@@ -348,6 +349,7 @@ const getFilterButtonClasses = (opcion: string) => {
   const activeStyles: Record<string, string> = {
     'En Gestión': 'bg-slate-200 text-black border-slate-600 shadow-sm',
     Contratado: 'bg-emerald-600 text-black border-emerald-600 shadow-sm',
+    'Caliente': 'bg-yellow-600 text-black border-orange-600 shadow-sm',
     'Llamar más adelante': 'bg-orange-600 text-black border-orange-600 shadow-sm',
     'No puede Pagar': 'bg-rose-600 text-black border-rose-600 shadow-sm',
     'Perder Coche': 'bg-rose-600 text-black border-rose-600 shadow-sm',
@@ -362,6 +364,7 @@ const getFilterButtonClasses = (opcion: string) => {
 
 const faseOptions = [
   'Nuevo',
+  'Caliente',
   'Pend. Firm. H. E.',
   'Pend. Cobro',
   'Pend. Llamada',
@@ -375,6 +378,7 @@ const getFaseButtonClasses = (option: FaseOption, active: boolean) => {
   const base = 'px-2 py-1 rounded-full text-[11px] font-semibold transition-colors';
   const styles: Record<FaseOption, string> = {
     Nuevo: 'bg-blue-100 text-blue-700 hover:bg-blue-200',
+    'Caliente': 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200',
     'Pend. Firm. H. E.': 'bg-amber-100 text-amber-700 hover:bg-amber-200',
     'Pend. Cobro': 'bg-rose-100 text-rose-700 hover:bg-rose-200',
     'Pend. Llamada': 'bg-orange-100 text-orange-700 hover:bg-orange-200',
@@ -384,6 +388,7 @@ const getFaseButtonClasses = (option: FaseOption, active: boolean) => {
 
   const activeStyles: Record<FaseOption, string> = {
     Nuevo: 'bg-blue-600 text-white',
+    'Caliente': 'bg-yellow-600 text-white',
     'Pend. Firm. H. E.': 'bg-amber-600 text-white',
     'Pend. Cobro': 'bg-rose-600 text-white',
     'Pend. Llamada': 'bg-orange-600 text-white',
@@ -398,6 +403,7 @@ const getStatusTextColor = (valor?: string | null) => {
   switch (valor) {
     case 'Nuevo': return 'text-blue-600';
     case 'Contratado': return 'text-emerald-600';
+    case 'Caliente': return 'text-yellow-600';
     case 'Pend. Firm. H. E.': return 'text-amber-600';
     case 'Pend. Cobro': return 'text-rose-600';
     case 'Pend. Llamada': return 'text-orange-600';
