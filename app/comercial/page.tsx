@@ -375,23 +375,23 @@ type FaseOption = (typeof faseOptions)[number];
 const getFaseButtonClasses = (option: FaseOption, active: boolean) => {
   const base = 'px-2 py-1 rounded-full text-[11px] font-semibold transition-colors';
   const styles: Record<FaseOption, string> = {
-    Nuevo: 'bg-blue-100 text-blue-500 hover:bg-blue-200',
-    'Caliente': 'bg-yellow-400 text-white hover:bg-yellow-300',
-    'Pend. Firm. H. E.': 'bg-yellow-50 text-yellow-600 hover:bg-yellow-100',
-    'Pend. Cobro': 'bg-rose-50 text-rose-500 hover:bg-rose-100',
-    'Pend. Llamada': 'bg-orange-50 text-orange-500 hover:bg-orange-100',
-    '1º Wsp Enviado': 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100',
-    '2º Wsp Enviado': 'bg-teal-50 text-teal-500 hover:bg-teal-100',
+    Nuevo: 'bg-blue-200 text-black-100 hover:bg-blue-100',
+    'Caliente': 'bg-amber-300 text-black-100 hover:bg-yellow-300',
+    'Pend. Firm. H. E.': 'bg-yellow-200 text-black-100 hover:bg-yellow-100',
+    'Pend. Cobro': 'bg-rose-200 text-black-100 hover:bg-rose-100',
+    'Pend. Llamada': 'bg-orange-200 text-black-100 hover:bg-orange-100',
+    '1º Wsp Enviado': 'bg-emerald-200 text-black-100 hover:bg-emerald-100',
+    '2º Wsp Enviado': 'bg-teal-200 text-black-100 hover:bg-teal-100',
   };
 
   const activeStyles: Record<FaseOption, string> = {
-    Nuevo: 'bg-blue-100 text-blue-600',
-    'Caliente': 'bg-amber-100 text-amber-700',
-    'Pend. Firm. H. E.': 'bg-yellow-100 text-yellow-700',
-    'Pend. Cobro': 'bg-rose-100 text-rose-600',
-    'Pend. Llamada': 'bg-orange-100 text-orange-600',
-    '1º Wsp Enviado': 'bg-emerald-100 text-emerald-700',
-    '2º Wsp Enviado': 'bg-teal-100 text-teal-600',
+    Nuevo: 'bg-blue-200 text-black-100',
+    'Caliente': 'bg-amber-300 text-black-100',
+    'Pend. Firm. H. E.': 'bg-yellow-200 text-black-100',
+    'Pend. Cobro': 'bg-rose-200 text-black-100',
+    'Pend. Llamada': 'bg-orange-200 text-black-100',
+    '1º Wsp Enviado': 'bg-emerald-200 text-black-100',
+    '2º Wsp Enviado': 'bg-teal-200 text-black-100',
   };
 
   return `${base} ${active ? activeStyles[option] : styles[option]}`;
@@ -399,7 +399,7 @@ const getFaseButtonClasses = (option: FaseOption, active: boolean) => {
 
 const getStatusTextColor = (valor?: string | null) => {
   switch (valor) {
-    case 'Nuevo': return 'text-blue-600';
+    case 'Nuevo': return 'text-blue-100';
     case 'Contratado': return 'text-emerald-600';
     case 'Caliente': return 'text-yellow-600';
     case 'Pend. Firm. H. E.': return 'text-amber-600';
@@ -574,7 +574,7 @@ const getStatusTextColor = (valor?: string | null) => {
                       <div className="relative inline-flex w-full justify-center">
                         <button
                           type="button"
-                          className={`${getFaseButtonClasses((lead.fase as FaseOption) || 'Nuevo', true)} w-25`}
+                          className={`${getFaseButtonClasses((lead.fase as FaseOption) || 'Nuevo', true)} w-30`}
                           onClick={(e) => {
                             if (faseDropdownOpen?.id === lead.id) {
                               setFaseDropdownOpen(null);
