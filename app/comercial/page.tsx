@@ -45,7 +45,7 @@ export default function ComercialPage() {
   const router = useRouter();
   const [filtroActual, setFiltroActual] = useState('En Gestión');
   const [filterDropdownOpen, setFilterDropdownOpen] = useState(false);
-  const [faseDropdownOpenId, setFaseDropdownOpenId] = useState<string | null>(null);
+  const [faseDropdownOpen, setFaseDropdownOpen] = useState<{ id: string; top: number; left: number } | null>(null);
   const dateInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
   useEffect(() => {
@@ -77,6 +77,14 @@ export default function ComercialPage() {
 
     inicializarPagina();
   }, [router]);
+
+  useEffect(() => {
+  const handleClickOutside = () => setFaseDropdownOpen(null);
+  if (faseDropdownOpen) {
+    document.addEventListener('click', handleClickOutside);
+  }
+  return () => document.removeEventListener('click', handleClickOutside);
+}, [faseDropdownOpen]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
@@ -487,12 +495,12 @@ const getStatusTextColor = (valor?: string | null) => {
             <table className="w-full text-[12px] border-collapse table-fixed">
               <thead className="text-[13px] bg-[#ffffff] sticky top-0 z-20">
                 <tr>
-                  <th className="w-40 p-2 font-extrabold text-[#097706]">FASE</th>
-                  <th className="w-50 p-2 font-extrabold text-[#097706]">OBSERVACIONES</th>
-                  <th className="w-24 p-2 font-extrabold border-slate-300 text-[#ff7700]">FECHA</th>
-                  <th className="w-24 p-2 font-extrabold border-slate-300 text-[#ff7700]">CONTACTAR</th>
-                  <th className="w-55 p-2 font-extrabold border-slate-300 text-[#ff7700]">NOMBRE COMPLETO</th>
-                  <th className="w-32 p-2 font-extrabold border-slate-300 text-[#ff7700]">TELÉFONO</th>
+                  <th className="w-40 p-2 font-extrabold text-[#097706] sticky left-0 z-30 bg-white">FASE</th>
+                  <th className="w-50 p-2 font-extrabold text-[#097706] bg-white sticky left-40 z-30">OBSERVACIONES</th>
+                  <th className="w-24 p-2 font-extrabold border-slate-300 text-[#ff7700] bg-white sticky left-90 z-30">FECHA</th>
+                  <th className="w-24 p-2 font-extrabold border-slate-300 text-[#ff7700] bg-white sticky left-114 z-30">CONTACTAR</th>
+                  <th className="w-55 p-2 font-extrabold border-slate-300 text-[#ff7700] bg-white sticky left-138 z-30">NOMBRE COMPLETO</th>
+                  <th className="w-32 p-2 font-extrabold border-slate-300 text-[#ff7700] bg-white sticky left-193 z-30 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.15)">TELÉFONO</th>
                   <th className="w-32 p-2 font-extrabold border-slate-300 text-[#ff7700]">
                     <button
                       type="button"
@@ -519,7 +527,7 @@ const getStatusTextColor = (valor?: string | null) => {
                   <th className="w-50 p-2 font-extrabold border-slate-300 text-[#2575f6]">VIVIENDA/HIPOTECA</th>
                   <th className="w-28 p-2 font-extrabold border-slate-300 text-[#2575f6]">COCHE</th>
                   <th className="w-28 p-2 font-extrabold border-slate-300 text-[#2575f6]">DEUD-PÚBL.</th>
-                  <th className="w-28 p-2 font-extrabold border-slate-300 text-[#4b8b16]">SERVICIO</th>
+                  <th className="w-30 p-2 font-extrabold border-slate-300 text-[#4b8b16]">SERVICIO</th>
                   <th className="w-28 p-2 font-extrabold border-slate-300 text-[#4b8b16]">ENTRADA</th>
                   <th className="w-24 p-2 font-extrabold border-slate-300 text-[#4b8b16]">CUOTA</th>
                   <th className="w-24 p-2 font-extrabold border-slate-300 text-[#4b8b16]">N.CUOTAS</th>
@@ -558,40 +566,30 @@ const getStatusTextColor = (valor?: string | null) => {
                   ).map((lead) => (
                     <tr key={lead.id} className="hover:bg-blue-50/40 transition-colors border-b border-slate-100">
                     {/* FASE */}
-                    <td className="p-1 text-center font-bold">
+                    <td className="p-1 text-center font-bold sticky left-0 z-10 bg-white">
                       <div className="relative inline-flex w-full justify-center">
                         <button
                           type="button"
                           className={`${getFaseButtonClasses((lead.fase as FaseOption) || 'Nuevo', true)} w-25`}
-                          onClick={() => setFaseDropdownOpenId(prev => prev === lead.id ? null : lead.id)}
+                          onClick={(e) => {
+                            if (faseDropdownOpen?.id === lead.id) {
+                              setFaseDropdownOpen(null);
+                            } else {
+                              const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+                              const dropdownHeight = 220;
+                              const spaceBelow = window.innerHeight - rect.bottom;
+                              const top = spaceBelow < dropdownHeight ? rect.top - dropdownHeight : rect.bottom;
+                              setFaseDropdownOpen({ id: lead.id, top, left: rect.left});
+                            }
+                          }}
                         >
                           {lead.fase || 'Nuevo'}
                         </button>
-                        {faseDropdownOpenId === lead.id && (
-                          <div className="absolute left-1/2 top-full z-30 mt-2 w-40 -translate-x-1/2 rounded-2xl border border-slate-200 bg-white p-2 shadow-xl">
-                            {faseOptions.map((option) => {
-                              const active = lead.fase === option;
-                              return (
-                                <button
-                                  key={option}
-                                  type="button"
-                                  className={`${getFaseButtonClasses(option, active)} mb-2 w-full justify-start ${active ? 'cursor-default' : ''}`}
-                                  onClick={() => {
-                                    updateField(lead.id, 'fase', option);
-                                    setFaseDropdownOpenId(null);
-                                  }}
-                                >
-                                  {option}
-                                </button>
-                              );
-                            })}
-                          </div>
-                        )}
                       </div>
                     </td>
                     {/* OBSERVACIONES */}
 
-                    <td className="p-1">
+                    <td className="p-1 sticky left-40 z-10 bg-white">
                       <ExpandableTextInput
                         id={lead.id}
                         field="seguimiento"
@@ -600,18 +598,18 @@ const getStatusTextColor = (valor?: string | null) => {
                       />
                     </td>
                     {/* FECHA CREACIÓN */}
-                    <td className="p-2 text-center truncate text-slate-700">
+                    <td className="p-2 text-center truncate text-slate-700 sticky left-90 z-10 bg-white">
                       {lead.fecha_creacion ? new Date(lead.fecha_creacion).toLocaleDateString('es-ES', { 
                         day: 'numeric',
                         month: 'short'
                       }).replace('.', '').replace(/ /g, '-').replace(/^\w|(?<=-)\w/g, (l) => l.toUpperCase()) : '-'}
                     </td>
                     {/* HORARIO DE LLAMADA */}
-                    <td className="p-2 text-center truncate text-slate-700">{lead.horario_llamada}</td>
+                    <td className="p-2 text-center truncate text-slate-700 sticky left-114 z-10 bg-white">{lead.horario_llamada}</td>
                     {/* NOMBRE COMPLETO */}
-                    <td className="p-2 text-center font-semibold truncate text-slate-700">{lead.nombre_completo}</td>
+                    <td className="p-2 text-center font-semibold truncate text-slate-700 sticky left-138 z-10 bg-white">{lead.nombre_completo}</td>
                     {/* TELÉFONO */}
-                    <td className="p-2 font-medium text-center truncate text-slate-700">
+                    <td className="p-2 font-medium text-center truncate text-slate-700 sticky left-193 z-10 bg-white">
                       {lead.telefono ? lead.telefono.replace('+34', '').trim() : ''}
                     </td>
                     {/* PROVINCIA */}
@@ -779,6 +777,39 @@ const getStatusTextColor = (valor?: string | null) => {
           </div>
         </div>
       </div>
+      {/* DROPDOWN FASE - fuera de la tabla */}
+      {faseDropdownOpen && (() => {
+        const lead = leads.find(l => l.id === faseDropdownOpen.id);
+        if (!lead) return null;
+        return (
+          <div
+            style={{
+              position: 'fixed',
+              top: faseDropdownOpen.top,
+              left: faseDropdownOpen.left-20,
+              zIndex: 9999,
+            }}
+            className="w-40 rounded-2xl border border-slate-200 bg-white p-2 shadow-xl"
+          >
+            {faseOptions.map((option) => {
+              const active = lead.fase === option;
+              return (
+                <button
+                  key={option}
+                  type="button"
+                  className={`${getFaseButtonClasses(option, active)} mb-2 w-full justify-start ${active ? 'cursor-default' : ''}`}
+                  onClick={() => {
+                    updateField(lead.id, 'fase', option);
+                    setFaseDropdownOpen(null);
+                  }}
+                >
+                  {option}
+                </button>
+              );
+            })}
+          </div>
+        );
+      })()}
     </div>
   );
 }
