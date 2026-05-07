@@ -166,6 +166,7 @@ export default function ComercialPage() {
       <textarea
         ref={ref}
         rows={expanded ? 4 : 1}
+        title={text as string}
         className="w-full p-1 text-center bg-transparent border-none text-[12px] resize-none overflow-hidden wrap-break-word text-slate-700"
         placeholder={placeholder}
         value={text}
@@ -593,12 +594,19 @@ const getStatusTextColor = (valor?: string | null) => {
                     {/* OBSERVACIONES */}
 
                     <td className="p-1 sticky left-40 z-10 bg-white">
-                      <ExpandableTextInput
-                        id={lead.id}
-                        field="seguimiento"
-                        value={lead.seguimiento}
-                        placeholder="Añadir nota..."
-                      />
+                      <div className="tooltip-wrapper">
+                        {lead.seguimiento && (
+                          <div className="tooltip-box">
+                            {lead.seguimiento}
+                          </div>
+                        )}
+                        <ExpandableTextInput
+                          id={lead.id}
+                          field="seguimiento"
+                          value={lead.seguimiento}
+                          placeholder="Añadir nota..."
+                        />
+                      </div>
                     </td>
                     {/* FECHA CREACIÓN */}
                     <td className="p-2 text-center truncate text-slate-700 sticky left-90 z-10 bg-white">
@@ -610,7 +618,9 @@ const getStatusTextColor = (valor?: string | null) => {
                     {/* HORARIO DE LLAMADA */}
                     <td className="p-2 text-center truncate text-slate-700 sticky left-114 z-10 bg-white">{lead.horario_llamada}</td>
                     {/* NOMBRE COMPLETO */}
-                    <td className="p-2 text-center font-semibold truncate text-slate-700 sticky left-138 z-10 bg-white">{lead.nombre_completo}</td>
+                    <td className="p-2 text-center font-semibold truncate text-slate-700 sticky left-138 z-10 bg-white" title={lead.nombre_completo ?? ''}>
+                      {lead.nombre_completo}
+                    </td>
                     {/* TELÉFONO */}
                     <td className="p-2 font-medium text-center truncate text-slate-700 sticky left-193 z-10 bg-white">
                       {lead.telefono ? lead.telefono.replace('+34', '').trim() : ''}
@@ -618,7 +628,9 @@ const getStatusTextColor = (valor?: string | null) => {
                     {/* PROVINCIA */}
                     <td className="p-2 text-center truncate text-slate-700">{lead.provincia}</td>
                     {/* S. LABORAL */}
-                    <td className="p-2 text-center truncate text-slate-700">{lead.situacion}</td>
+                    <td className="p-2 text-center truncate text-slate-700" title={lead.situacion ?? ''}>
+                      {lead.situacion}
+                    </td>
                     {/* IMPORTE DEUDA*/}
                     <td className="p-2 text-center font-bold">
                       <ExpandableTextInput
@@ -629,9 +641,13 @@ const getStatusTextColor = (valor?: string | null) => {
                       />
                     </td>
                     {/* SITUACIÓN PAGOS */}
-                    <td className="p-2 text-center truncate text-slate-700">{lead.situacion_pagos}</td>
+                    <td className="p-2 text-center truncate text-slate-700" title={lead.situacion_pagos ?? ''}>
+                      {lead.situacion_pagos}
+                    </td>
                     {/* PREOCUPACIÓN */}
-                    <td className="p-2 text-center truncate text-slate-700 italic">{lead.preocupacion}</td>
+                    <td className="p-2 text-center truncate text-slate-700 italic " title={lead.preocupacion ?? ''}>
+                      {lead.preocupacion}
+                    </td>
                     {/* INGRESOS */}
                     <td className="p-1 text-center truncate text-slate-700">
                       <ExpandableTextInput
