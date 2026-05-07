@@ -525,7 +525,6 @@ const getStatusTextColor = (valor?: string | null) => {
                       SIT-PAGOS <span>{getSortIcon('situacion_pagos')}</span>
                     </button>
                   </th>
-                  <th className="w-24 p-2 font-extrabold border-slate-300 text-[#eb2323]">EMBARGOS</th>
                   <th className="w-40 p-2 font-extrabold border-slate-300 text-[#ff7700]">PREOCUPACIÓN</th>
                   <th className="w-28 p-2 font-extrabold border-slate-300 text-[#2575f6]">INGRESOS</th>
                   <th className="w-50 p-2 font-extrabold border-slate-300 text-[#2575f6]">VIVIENDA/HIPOTECA</th>
@@ -631,12 +630,8 @@ const getStatusTextColor = (valor?: string | null) => {
                     </td>
                     {/* SITUACIÓN PAGOS */}
                     <td className="p-2 text-center truncate text-slate-700">{lead.situacion_pagos}</td>
-                    
-                    {/* EMBARGOS */}
-                    <td className="p-2 text-center truncate text-slate-700">{lead.embargos}</td>
                     {/* PREOCUPACIÓN */}
                     <td className="p-2 text-center truncate text-slate-700 italic">{lead.preocupacion}</td>
-                    
                     {/* INGRESOS */}
                     <td className="p-1 text-center truncate text-slate-700">
                       <ExpandableTextInput
@@ -763,7 +758,6 @@ const getStatusTextColor = (valor?: string | null) => {
                         >
                           <option className="text-slate-500" value="Libre">-</option>
                           <option className="text-emerald-600" value="Contratado">Contratado</option>
-                          <option className="text-amber-500" value="Se lo piensa">Se lo piensa</option>
                           <option className="text-rose-600" value="No puede Pagar">No puede Pagar</option>
                           <option className="text-rose-600" value="Perder Coche">Perder Coche</option>
                           <option className="text-rose-600" value="Perder Vivienda">Perder Vivienda</option>
