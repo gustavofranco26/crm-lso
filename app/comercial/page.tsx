@@ -736,7 +736,7 @@ const getStatusTextColor = (valor?: string | null) => {
                         type="date"
                         className="w-full p-1 text-center bg-transparent border-none text-slate-700"
                         defaultValue={dateToInputValue(lead.fecha_primera_cuota)}
-                        onBlur={(e) => updateField(lead.id, 'fecha_primera_cuota', e.target.value)}
+                        onBlur={(e) => updateField(lead.id, 'fecha_primera_cuota', e.target.value || null)}
                       />
                     </td>
                     {/* HORA DE ENCARGO FIRMADA*/}
