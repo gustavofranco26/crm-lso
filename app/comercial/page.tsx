@@ -40,7 +40,7 @@ export default function ComercialPage() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [nombreComercial, setNombreComercial] = useState<string>('Cargando...');
   const [loading, setLoading] = useState(true);
-  const [sortField, setSortField] = useState<'provincia' | 'situacion_pagos' | null>(null);
+  const [sortField, setSortField] = useState<'provincia' | 'situacion_pagos' | 'fase' | null>(null);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const router = useRouter();
   const [filtroActual, setFiltroActual] = useState('En Gestión');
@@ -232,14 +232,18 @@ export default function ComercialPage() {
     return Number.isNaN(date.getTime()) ? '' : date.toISOString().slice(0, 10);
   };
 
-  const getSortIcon = (field: 'provincia' | 'situacion_pagos') => {
+  const getSortIcon = (field: 'provincia' | 'situacion_pagos' | 'fase' ) => {
     if (sortField !== field) return '↕';
     return sortOrder === 'asc' ? '▲' : '▼';
   };
 
-  const handleSort = (field: 'provincia' | 'situacion_pagos') => {
+  const handleSort = (field: 'provincia' | 'situacion_pagos' | 'fase') => {
     if (sortField === field) {
-      setSortOrder(prev => (prev === 'asc' ? 'desc' : 'asc'));
+      if (sortOrder === 'desc') {
+        setSortField(null);
+      } else {
+        setSortOrder('desc');
+      }
     } else {
       setSortField(field);
       setSortOrder('asc');
@@ -500,7 +504,15 @@ const getStatusTextColor = (valor?: string | null) => {
             <table className="w-full text-[12px] border-collapse table-fixed">
               <thead className="text-[13px] bg-[#ffffff] sticky top-0 z-20">
                 <tr>
-                  <th className="w-40 p-2 font-extrabold text-[#097706] sticky left-0 z-30 bg-white">FASE</th>
+                  <th className="w-40 p-2 font-extrabold text-[#097706] sticky left-0 z-30 bg-white">
+                    <button
+                      type="button"
+                      onClick={() => handleSort('fase')}
+                      className="inline-flex items-center gap-1 cursor-pointer"
+                    >
+                      FASE <span>{getSortIcon('fase')}</span>
+                    </button>
+                  </th>
                   <th className="w-50 p-2 font-extrabold text-[#097706] bg-white sticky left-40 z-30">OBSERVACIONES</th>
                   <th className="w-24 p-2 font-extrabold border-slate-300 text-[#ff7700] bg-white sticky left-90 z-30">FECHA</th>
                   <th className="w-24 p-2 font-extrabold border-slate-300 text-[#ff7700] bg-white sticky left-114 z-30">CONTACTAR</th>
