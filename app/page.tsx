@@ -53,6 +53,23 @@ export default function Login() {
   }
 }
 
+const [mostrarOlvide, setMostrarOlvide] = useState(false)
+const [emailReset, setEmailReset] = useState('')
+const [mensajeReset, setMensajeReset] = useState('')
+
+const manejarOlvideContrasena = async (e: React.FormEvent) => {
+  e.preventDefault()
+  const { error } = await supabase.auth.resetPasswordForEmail(emailReset, {
+    redirectTo: 'https://crm-lso.vercel.app/reset-password',
+  })
+  if (error) {
+    setMensajeReset('Error: ' + error.message)
+  } else {
+    setMensajeReset('Te hemos enviado un email para restablecer tu contraseña.')
+  }
+}
+
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50 font-sans">
       <form onSubmit={manejarLogin} className="bg-white p-10 rounded-2xl shadow-xl w-full max-w-md border border-slate-100">
@@ -77,6 +94,35 @@ export default function Login() {
           <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-lg shadow-lg transition-transform active:scale-95">
             ENTRAR
           </button>
+          {/* OLVIDÉ MI CONTRASEÑA */}
+          <button
+            type="button"
+            onClick={() => setMostrarOlvide(prev => !prev)}
+            className="w-full text-center text-sm text-slate-400 hover:text-blue-500 mt-2 transition-colors"
+          >
+            ¿Olvidaste tu contraseña?
+          </button>
+
+          {mostrarOlvide && (
+            <div className="mt-4 space-y-3">
+              <input
+                type="email"
+                placeholder="Tu correo electrónico"
+                className="w-full p-4 bg-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-[#000000]"
+                onChange={(e) => setEmailReset(e.target.value)}
+              />
+              <button
+                type="button"
+                onClick={manejarOlvideContrasena}
+                className="w-full bg-slate-700 hover:bg-slate-800 text-white font-bold py-3 rounded-lg transition-colors"
+              >
+                Enviar enlace
+              </button>
+              {mensajeReset && (
+                <p className="text-center text-sm text-emerald-600">{mensajeReset}</p>
+              )}
+            </div>
+          )}
         </div>
       </form>
     </div>
