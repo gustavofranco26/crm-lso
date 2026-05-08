@@ -92,6 +92,14 @@ export default function ComercialPage() {
     router.push('/')
 }
 
+useEffect(() => {
+  const handleClickOutside = () => setFilterDropdownOpen(false);
+  if (filterDropdownOpen) {
+    document.addEventListener('click', handleClickOutside);
+  }
+  return () => document.removeEventListener('click', handleClickOutside);
+}, [filterDropdownOpen]);
+
   const isFinalClosed = (situacion: string | number | boolean | null | undefined) => {
     return Boolean(situacion) && situacion !== 'Libre' && situacion !== '-';
   };
