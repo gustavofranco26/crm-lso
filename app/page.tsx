@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
+import { Eye, EyeOff } from 'lucide-react'
 
 export default function Login() {
   const [usuario, setUsuario] = useState('')
@@ -56,6 +57,7 @@ export default function Login() {
 const [mostrarOlvide, setMostrarOlvide] = useState(false)
 const [emailReset, setEmailReset] = useState('')
 const [mensajeReset, setMensajeReset] = useState('')
+const [verPass, setVerPass] = useState(false)
 
 const manejarOlvideContrasena = async (e: React.FormEvent) => {
   e.preventDefault()
@@ -85,12 +87,21 @@ const manejarOlvideContrasena = async (e: React.FormEvent) => {
             className="w-full p-4 bg-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
             onChange={(e) => setUsuario(e.target.value)}
           />
-          <input 
-            type="password" 
-            placeholder="Contraseña"
-            className="w-full p-4 bg-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-            onChange={(e) => setPass(e.target.value)}
-          />
+          <div className="relative">
+            <input 
+              type={verPass ? 'text' : 'password'}
+              placeholder="Contraseña"
+              className="w-full p-4 bg-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+              onChange={(e) => setPass(e.target.value)}
+            />
+            <button
+              type="button"
+              onClick={() => setVerPass(prev => !prev)}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+            >
+              {verPass ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
           <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-lg shadow-lg transition-transform active:scale-95">
             ENTRAR
           </button>
