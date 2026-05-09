@@ -83,7 +83,7 @@ const manejarOlvideContrasena = async (e: React.FormEvent) => {
         <div className="space-y-4 text-[#000000]">
           <input 
             type="text"
-            placeholder="Nombre y Apellido"
+            placeholder="Usuario o correo electrónico"
             className="w-full p-4 bg-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
             onChange={(e) => setUsuario(e.target.value)}
           />
@@ -118,7 +118,7 @@ const manejarOlvideContrasena = async (e: React.FormEvent) => {
             <div className="mt-4 space-y-3">
               <input
                 type="email"
-                placeholder="Tu correo electrónico"
+                placeholder="Ingresa tu correo electrónico"
                 className="w-full p-4 bg-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-[#000000]"
                 onChange={(e) => setEmailReset(e.target.value)}
               />

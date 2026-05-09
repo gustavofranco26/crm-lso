@@ -450,7 +450,8 @@ const getStatusTextColor = (valor?: string | null) => {
               priority 
             />
             <h1 className="text-[16px] text-slate-500 font-semibold tracking-widest h-10 top-0 z-0 mt-5 ml-15">
-              DefenCore
+              <span className="text-slate-500">Defer</span>
+              <span className="text-[#097706]">Core</span>
             </h1>
           </div>
         </div>
