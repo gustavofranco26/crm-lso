@@ -498,7 +498,7 @@ const getStatusTextColor = (valor?: string | null) => {
           
           <button
             onClick={handleLogout}
-            className="flex items-center gap-2 text-[#4d4d4d] px-4 py-2 rounded-md text-sm font-bold hover:text-[#7c6b6b] transition duration-200"
+            className="flex items-center gap-2 text-[#4d4d4d] px-4 py-2 rounded-md text-sm font-bold hover:text-gray-900 transition duration-200 bg-color-transparent border border-gray-300 hover:bg-gray-100"
           >
             <LogOut size={16} />
             <span>Cerrar Sesión</span>
