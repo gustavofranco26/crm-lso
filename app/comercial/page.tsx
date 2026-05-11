@@ -364,6 +364,20 @@ useEffect(() => {
 
   // 6. ACTUALIZACIÓN LOCAL
   setLeads(prev => prev.map(l => l.id === id ? { ...l, ...updates } : l));
+  
+  if (isClosing && !wasClosed) {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await supabase.from('comisiones').insert([
+        { id_usuario: user.id, id_lead: id, monto: 40 }
+      ]);
+    }
+  }
+  
+  if (isClosing) {
+    alert("¡Lead cerrado y comisión generada correctamente!");
+    await fetchLeads(); // Esto refresca la tabla para aplicar los filtros de estado
+  }
 };
 
 
