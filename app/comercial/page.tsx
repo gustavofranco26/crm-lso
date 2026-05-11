@@ -298,6 +298,7 @@ useEffect(() => {
   const updateField = async (id: string, field: string, value: any) => {
   // 1. LISTA BLANCA DE CAMPOS (Evita que alguien intente actualizar un campo no permitido o inyectar código malicioso)
   const camposPermitidos = [
+    'fase',
     'seguimiento',
     'importe_deuda',
     'ingresos',
