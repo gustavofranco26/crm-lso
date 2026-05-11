@@ -316,6 +316,7 @@ useEffect(() => {
     'situacion_final'
   ];
 
+  
   if (!camposPermitidos.includes(field)) {
     console.warn(`Campo bloqueado: ${field}`);
     return;
