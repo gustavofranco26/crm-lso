@@ -316,28 +316,14 @@ useEffect(() => {
     'situacion_final'
   ];
 
-  
+
   if (!camposPermitidos.includes(field)) {
     console.warn(`Campo bloqueado: ${field}`);
     return;
   }
-
-  // 2. NORMALIZACIÓN Y VALIDACIÓN DE NÚMEROS
+  
   let valorFinal = value;
   
-  // Lista de campos que deben ser números puros
-  const camposNumericos = ['ingresos', 'importe_deuda', 'entrada_importe', 'cuota_importe', 'total_cuotas'];
-  
-  if (camposNumericos.includes(field)) {
-    const num = value === '' || value === null ? null : Number(value);
-    
-    if (num !== null && isNaN(num)) {
-      console.error(`Error: El campo ${field} solo acepta números.`);
-      return; 
-    }
-    valorFinal = num;
-  }
-
   // 3. LÓGICA DE CIERRES
   const situacionFinalValue = field === 'situacion_final' ? normalizeSituacionFinal(value) : undefined;
   const leadActual = leads.find((l) => l.id === id);
