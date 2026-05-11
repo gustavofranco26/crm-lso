@@ -320,7 +320,7 @@ useEffect(() => {
     return;
   }
 
-  // 2. NORMALIZACIÓN Y VALIDACIÓN DE NÚMEROS (Evita el error de la imagen roja)
+  // 2. NORMALIZACIÓN Y VALIDACIÓN DE NÚMEROS
   let valorFinal = value;
   
   // Lista de campos que deben ser números puros
@@ -373,10 +373,10 @@ useEffect(() => {
       ]);
     }
   }
-  
+
   if (isClosing) {
-    alert("¡Lead cerrado y comisión generada correctamente!");
-    await fetchLeads(); // Esto refresca la tabla para aplicar los filtros de estado
+    alert("Acción realizada correctamente!");
+    await fetchLeads();
   }
 };
 
