@@ -50,33 +50,31 @@ export default function ComercialPage() {
 
   useEffect(() => {
     const inicializarPagina = async () => {
-      const rawId = localStorage.getItem('user_id');
-      const userId = rawId?.replace(/['"]+/g, '');
-
-      if (!userId) {
-        router.push('/'); // Si no hay ID, redirigir al login
-        return;
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      if (authError || !user) {
+      router.push('/');
+      return;
       }
 
-      // 1. Traer nombre del comercial
-      const { data, error } = await supabase
-        .from('usuarios')
-        .select('nombre')
-        .eq('id', userId)
-        .single();
+      const userId = user.id;
 
-      if (data && !error) {
-        setNombreComercial(data.nombre);
+      const { data: userData } = await supabase
+      .from('usuarios')
+      .select('nombre')
+      .eq('id', userId)
+      .single();
+
+      if (userData) {
+        setNombreComercial(userData.nombre);
       } else {
         setNombreComercial('Comercial');
       }
 
-      // 2. Traer los leads
       await fetchLeads();
-    };
+  };
 
-    inicializarPagina();
-  }, [router]);
+  inicializarPagina();
+}, []);
 
   useEffect(() => {
   const handleClickOutside = () => setFaseDropdownOpen(null);
@@ -160,7 +158,7 @@ useEffect(() => {
 
     const handleBlur = () => {
       setExpanded(false);
-      updateField(id, field, text);
+      updateField(id, field as string, text);
     };
 
     const handleKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
@@ -269,77 +267,104 @@ useEffect(() => {
   };
 
   async function fetchLeads() {
-    const rawId = localStorage.getItem('user_id');
-    const comercialId = rawId?.replace(/['"]+/g, '');
-    if (!comercialId) return;
+  // 1. Obtenemos el usuario autenticado directamente desde Supabase
+  const { data: { user } } = await supabase.auth.getUser();
+  const comercialId = user?.id;
 
-    const { data } = await supabase
-      .from('leads')
-      .select('*')
-      //.neq('estado', 'cerrado')
-      .eq('asignado_a', comercialId)
-      .order('fecha_creacion', { ascending: false });
-
-    if (data) setLeads(data as Lead[]);
+  if (!comercialId) {
     setLoading(false);
+    return;
   }
 
-  const updateField = async (id: string, field: keyof Lead, value: string | boolean | number | null | undefined) => {
-    const situacionFinalValue = field === 'situacion_final' ? normalizeSituacionFinal(value) : undefined;
-    const leadActual = leads.find((l) => l.id === id);
-    const wasClosed = isFinalClosed(leadActual?.situacion_final);
-    const isClosing = field === 'situacion_final' && isFinalClosed(situacionFinalValue);
-    const isReopening = field === 'situacion_final' && !isClosing && wasClosed;
+  // 2. Consultamos los leads filtrando por el ID real del usuario
+  const { data, error } = await supabase
+    .from('leads')
+    .select('*')
+    // .neq('estado', 'cerrado')
+    .eq('asignado_a', comercialId)
+    .order('fecha_creacion', { ascending: false });
 
-    if (isClosing || isReopening) {
-      const confirmar = window.confirm("¿Confirmas esta acción?");
-      if (!confirmar) return;
-      setLoading(true);
+  if (error) {
+    console.error("Error al obtener leads:", error.message);
+  }
+
+  if (data) {
+    setLeads(data as Lead[]);
+  }
+  
+  setLoading(false);
+}
+
+  const updateField = async (id: string, field: string, value: any) => {
+  // 1. LISTA BLANCA DE CAMPOS (Evita que alguien intente actualizar un campo no permitido o inyectar código malicioso)
+  const camposPermitidos = [
+    'seguimiento',
+    'importe_deuda',
+    'ingresos',
+    'vivienda_propiedad',
+    'hipoteca',
+    'coche',
+    'deuda_publica',
+    'servicio_interes',
+    'entrada_importe',
+    'cuota_importe',
+    'total_cuotas',
+    'fecha_primera_cuota',
+    'he_firmada',
+    'fecha_contratado',
+    'situacion_final'
+  ];
+
+  if (!camposPermitidos.includes(field)) {
+    console.warn(`Campo bloqueado: ${field}`);
+    return;
+  }
+
+  // 2. NORMALIZACIÓN Y VALIDACIÓN DE NÚMEROS (Evita el error de la imagen roja)
+  let valorFinal = value;
+  
+  // Lista de campos que deben ser números puros
+  const camposNumericos = ['ingresos', 'importe_deuda', 'entrada_importe', 'cuota_importe', 'total_cuotas'];
+  
+  if (camposNumericos.includes(field)) {
+    const num = value === '' || value === null ? null : Number(value);
+    
+    if (num !== null && isNaN(num)) {
+      console.error(`Error: El campo ${field} solo acepta números.`);
+      return; 
     }
+    valorFinal = num;
+  }
 
-    const updates: Partial<Lead> = field === 'situacion_final'
-      ? {
-          situacion_final: situacionFinalValue,
-          estado: isClosing ? 'cerrado' : 'nuevo',
-          fecha_contratado: situacionFinalValue === 'Contratado' ? new Date().toISOString() : null,
-        }
-      : { [field]: value } as Partial<Lead>;
+  // 3. LÓGICA DE CIERRES
+  const situacionFinalValue = field === 'situacion_final' ? normalizeSituacionFinal(value) : undefined;
+  const leadActual = leads.find((l) => l.id === id);
+  const wasClosed = isFinalClosed(leadActual?.situacion_final);
+  const isClosing = field === 'situacion_final' && isFinalClosed(situacionFinalValue);
 
-    setLeads(prev => prev.map(l => l.id === id ? { ...l, ...updates } : l));
-
-    if (field === 'situacion_final') {
-      const { error } = await supabase
-        .from('leads')
-        .update(updates)
-        .eq('id', id);
-
-      if (!error && isClosing && !wasClosed) {
-        const rawId = localStorage.getItem('user_id');
-        const comercialId = rawId?.replace(/['"]+/g, '');
-        await supabase.from('comisiones').insert([{ id_usuario: comercialId, id_lead: id, monto: 40 }]);
+  // 4. OBJETO DE ACTUALIZACIÓN
+  const updates: any = field === 'situacion_final'
+    ? {
+        situacion_final: situacionFinalValue,
+        estado: isClosing ? 'cerrado' : 'nuevo',
+        fecha_contratado: situacionFinalValue === 'Contratado' ? new Date().toISOString() : null,
       }
+    : { [field]: valorFinal };
 
-      if (error) {
-        console.error(`Error en ${field}:`, error.message);
-      }
+  // 5. ENVÍO A SUPABASE
+  const { error } = await supabase
+    .from('leads')
+    .update(updates)
+    .eq('id', id);
 
-      if (isClosing || isReopening) {
-        alert("Acción realizada correctamente.");
-        await fetchLeads();
-        setLoading(false);
-      }
-    } else {
-      const { error } = await supabase
-        .from('leads')
-        .update({ [field]: value })
-        .eq('id', id);
+  if (error) {
+    console.error("Error en Supabase:", error.message);
+    return;
+  }
 
-      if (error) {
-        console.error(`Error en ${field}:`, error.message);
-        setLoading(false);
-      }
-    }
-  };
+  // 6. ACTUALIZACIÓN LOCAL
+  setLeads(prev => prev.map(l => l.id === id ? { ...l, ...updates } : l));
+};
 
 
 
