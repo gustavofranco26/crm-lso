@@ -23,31 +23,27 @@ export default function NuevoLead() {
     }
 
     // --- LÓGICA DE FORMATEO DE DEUDA ---
-    // Transforma "entre_20.000_€_y_30.000_€" en "entre 20.000 € y 30.000 €"
-    const deudaRaw = extract(/Importe deuda:\s*(.*)/i) || ""
-    const deudaBonita = deudaRaw
-      .replace(/_/g, " ")        // Cambia guiones bajos por espacios
-      .replace(/\s+/g, " ")      // Quita espacios dobles si los hay
-      .trim();
+    const deudaRaw = extract(/Importe deuda:\s*(.*?)(?:\s*Situación pagos:|$)/i) || ""
+    const deudaBonita = deudaRaw.replace(/_/g, " ").replace(/\s+/g, " ").trim()
 
-    // --- LÓGICA DE EMBARGOS ---
-    const embargosRaw = extract(/Embargos:\s*(.*)/i) || ""
-    const tieneEmbargos = embargosRaw.toLowerCase().includes('si') || embargosRaw.toLowerCase().includes('sí') ? 'Sí' : 'No'
+    // --- SITUACIÓN PAGOS ---
+    const situacionPagosRaw = extract(/Situación pagos:\s*(.*)/i) || ""
+    const situacionPagosBonita = situacionPagosRaw.replace(/_/g, " ").replace(/\s+/g, " ").trim()
 
     // --- OBJETO FINAL PARA SUPABASE ---
     const nuevoLead = {
       nombre_completo: extract(/Nombre:\s*(.*)/i),
       telefono: extract(/Teléfono:\s*(.*)/i),
       provincia: extract(/Provincia:\s*(.*)/i),
-      estado: 'nuevo', 
+      estado: 'nuevo',
       situacion: extract(/Situación:\s*(.*)/i), 
       importe_deuda: deudaBonita,
-      situacion_pagos: extract(/Situación pagos:\s*(.*)/i),
+      situacion_pagos: situacionPagosBonita,
       preocupacion: extract(/Preocupación:\s*(.*)/i),
-      horario_llamada: extract(/Horario llamada:\s*(.*)/i),
+      ingresos: extract(/Ingresos:\s*(.*)/i),
+      dni_nie: extract(/DNI:\s*(.*)/i),
       fecha_creacion: new Date().toISOString(),
       // Campos extra para evitar errores de validación en tu DB
-      ingresos: 0,
       w1: false,
       w2: false,
       w3: false,
