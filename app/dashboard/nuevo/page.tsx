@@ -43,6 +43,7 @@ const nuevoLead = {
   he_firmada: 'No',
 };
 
+
     const { error } = await supabase
       .from('leads')
       .insert([nuevoLead])
