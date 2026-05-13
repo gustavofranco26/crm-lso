@@ -30,6 +30,12 @@ export default function NuevoLead() {
     const situacionPagosRaw = extract(/Situación pagos:\s*(.*)/i) || ""
     const situacionPagosBonita = situacionPagosRaw.replace(/_/g, " ").replace(/\s+/g, " ").trim()
 
+    const ingresosRaw = extract(/Ingresos:\s*(.*)/i) || ""
+    const ingresosLimpio = ingresosRaw
+      .replace(/[^0-9.,]/g, '')
+      .replace(',', '.')
+      .trim() || null
+
     // --- OBJETO FINAL PARA SUPABASE ---
     const nuevoLead = {
       nombre_completo: extract(/Nombre:\s*(.*)/i),
@@ -40,7 +46,7 @@ export default function NuevoLead() {
       importe_deuda: deudaBonita,
       situacion_pagos: situacionPagosBonita,
       preocupacion: extract(/Preocupación:\s*(.*)/i),
-      ingresos: extract(/Ingresos:\s*(.*)/i),
+      ingresos: ingresosLimpio,
       dni_nie: extract(/DNI:\s*(.*)/i),
       fecha_creacion: new Date().toISOString(),
       // Campos extra para evitar errores de validación en tu DB
