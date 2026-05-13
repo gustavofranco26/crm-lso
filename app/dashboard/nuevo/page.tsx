@@ -41,9 +41,6 @@ const nuevoLead = {
   fecha_creacion: new Date().toISOString(),
   asignado_a: null,
   he_firmada: 'No',
-  w1: false,
-  w2: false,
-  w3: false
 };
 
     const { error } = await supabase
