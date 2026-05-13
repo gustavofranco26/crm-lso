@@ -18,43 +18,33 @@ export default function NuevoLead() {
     setLoading(true)
 
     const extract = (regex: RegExp) => {
-      const match = rawData.match(regex)
-      return match ? match[1].trim() : null
-    }
+    const match = rawData.match(regex);
+    return match ? match[1].trim() : null;
+  };
 
-    // --- LÓGICA DE FORMATEO DE DEUDA ---
-    const deudaRaw = extract(/Importe deuda:\s*(.*?)(?:\s*Situación pagos:|$)/i) || ""
-    const deudaBonita = deudaRaw.replace(/_/g, " ").replace(/\s+/g, " ").trim()
+// 2. Procesamiento de los datos (limpieza de guiones bajos)
+const deudaRaw = extract(/Importe deuda:\s*(.*)/i) || "";
+const situacionPagosRaw = extract(/Situación pagos:\s*(.*)/i) || "";
 
-    // --- SITUACIÓN PAGOS ---
-    const situacionPagosRaw = extract(/Situación pagos:\s*(.*)/i) || ""
-    const situacionPagosBonita = situacionPagosRaw.replace(/_/g, " ").replace(/\s+/g, " ").trim()
 
-    const ingresosRaw = extract(/Ingresos:\s*(.*)/i) || ""
-    const ingresosLimpio = ingresosRaw
-      .replace(/[^0-9.,]/g, '')
-      .replace(',', '.')
-      .trim() || null
-
-    // --- OBJETO FINAL PARA SUPABASE ---
-    const nuevoLead = {
-      nombre_completo: extract(/Nombre:\s*(.*)/i),
-      telefono: extract(/Teléfono:\s*(.*)/i),
-      provincia: extract(/Provincia:\s*(.*)/i),
-      estado: 'nuevo',
-      situacion: extract(/Situación:\s*(.*)/i), 
-      importe_deuda: deudaBonita,
-      situacion_pagos: situacionPagosBonita,
-      preocupacion: extract(/Preocupación:\s*(.*)/i),
-      ingresos: ingresosLimpio,
-      dni_nie: extract(/DNI:\s*(.*)/i),
-      fecha_creacion: new Date().toISOString(),
-      // Campos extra para evitar errores de validación en tu DB
-      w1: false,
-      w2: false,
-      w3: false,
-      he_firmada: 'No'
-    }
+const nuevoLead = {
+  nombre_completo: extract(/Nombre:\s*(.*)/i),
+  telefono: extract(/Teléfono:\s*(.*)/i),
+  provincia: extract(/Provincia:\s*(.*)/i),
+  estado: 'nuevo',
+  situacion: extract(/Situación:\s*(.*)/i)?.replace(/_/g, " "), 
+  importe_deuda: deudaRaw.replace(/_/g, " ").trim(),
+  situacion_pagos: situacionPagosRaw.replace(/_/g, " ").trim(),
+  preocupacion: extract(/Preocupación:\s*(.*)/i),
+  ingresos: parseInt(extract(/Ingresos:\s*(\d+)/i) || "0"),
+  dni_nie: extract(/DNI:\s*(.*)/i),
+  fecha_creacion: new Date().toISOString(),
+  asignado_a: null,
+  he_firmada: 'No',
+  w1: false,
+  w2: false,
+  w3: false
+};
 
     const { error } = await supabase
       .from('leads')
