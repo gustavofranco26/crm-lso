@@ -551,7 +551,7 @@ const getStatusTextColor = (valor?: string | null) => {
                   </th>
                   <th className="w-50 p-2 font-extrabold text-[#097706] bg-white sticky left-40 z-30">OBSERVACIONES</th>
                   <th className="w-24 p-2 font-extrabold border-slate-300 text-[#ff7700] bg-white sticky left-90 z-30">FECHA</th>
-                  <th className="w-24 p-2 font-extrabold border-slate-300 text-[#ff7700] bg-white sticky left-114 z-30">CONTACTAR</th>
+                  <th className="w-24 p-2 font-extrabold border-slate-300 text-[#ff7700] bg-white sticky left-114 z-30">DNI-NIE</th>
                   <th className="w-55 p-2 font-extrabold border-slate-300 text-[#ff7700] bg-white sticky left-138 z-30">NOMBRE COMPLETO</th>
                   <th className="w-32 p-2 font-extrabold border-slate-300 text-[#ff7700] bg-white sticky left-193 z-30 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.15)">TELÉFONO</th>
                   <th className="w-32 p-2 font-extrabold border-slate-300 text-[#ff7700]">
@@ -664,7 +664,7 @@ const getStatusTextColor = (valor?: string | null) => {
                       }).replace('.', '').replace(/ /g, '-').replace(/^\w|(?<=-)\w/g, (l) => l.toUpperCase()) : '-'}
                     </td>
                     {/* HORARIO DE LLAMADA */}
-                    <td className="p-2 text-center truncate text-slate-700 sticky left-114 z-10 bg-white">{lead.horario_llamada}</td>
+                    <td className="p-2 text-center truncate text-slate-700 sticky left-114 z-10 bg-white">{lead.dni_nie}</td>
                     {/* NOMBRE COMPLETO */}
                     <td className="p-2 text-center font-semibold truncate text-slate-700 sticky left-138 z-10 bg-white" title={lead.nombre_completo ?? ''}>
                       {lead.nombre_completo}
