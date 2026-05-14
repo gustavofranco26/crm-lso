@@ -14,17 +14,17 @@ export async function POST(request: Request) {
       .from('leads')
       .insert([
         {
-          nombre_completo: body.nombre,
+          nombre_completo: body.nombre_completo,
           telefono: body.telefono,
           provincia: body.provincia,
           estado: 'nuevo',
           // Limpiamos los guiones bajos de Meta automáticamente
           situacion: body.situacion?.replace(/_/g, " "),
-          importe_deuda: body.deuda?.replace(/_/g, " "),
-          situacion_pagos: body.pagos?.replace(/_/g, " "),
+          importe_deuda: body.importe_deuda?.replace(/_/g, " "),
+          situacion_pagos: body.situacion_pagos?.replace(/_/g, " "),
           preocupacion: body.preocupacion,
           ingresos: parseInt(body.ingresos || "0"),
-          dni_nie: body.dni,
+          dni_nie: body.dni_nie,
           fecha_creacion: new Date().toISOString(),
           he_firmada: 'No',
           w1: false,
