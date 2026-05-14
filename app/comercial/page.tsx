@@ -519,17 +519,21 @@ const getStatusTextColor = (valor?: string | null) => {
 
         {/* SECCIÓN DERECHA: Nombre y Salir (empujados por ml-auto) */}
         <div className="ml-auto flex items-center gap-6">
-          <span className="text-slate-600 font-medium hidden lg:block text-sm italic">
-            {nombreComercial}
-          </span>
-          
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-2 text-[#4d4d4d] px-4 py-2 rounded-md text-sm font-bold hover:text-gray-900 transition duration-200 bg-color-transparent border border-gray-300 hover:bg-gray-100"
-          >
-            <LogOut size={16} />
-            <span>Cerrar Sesión</span>
-          </button>
+          <div className="hidden lg:flex flex-col items-end">
+            <span className=" text-slate-600 font-medium hidden lg:block text-[16px]">
+              {nombreComercial}
+            </span>
+            <span className="text-[12px] text-gray-400 font-medium leading-tight italic ">
+              Especialista Ley de Segunda Oportunidad
+            </span>
+          </div>
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 text-[#4d4d4d] px-4 py-2 rounded-md text-sm font-bold hover:text-gray-900 transition duration-200 bg-color-transparent border border-gray-300 hover:bg-gray-100"
+            >
+              <LogOut size={16} />
+              <span>Cerrar Sesión</span>
+            </button>
         </div>
       </header>
 
