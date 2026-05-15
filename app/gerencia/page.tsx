@@ -98,8 +98,8 @@ export default function PanelGerencia() {
       <header className="bg-[#4a86e8] p-4 text-white shadow-md">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex flex-col gap-3">
-            <div className="text-center lg:text-left font-bold text-2xl tracking-[0.2em]">
-              VISTA - RESUMEN GERENCIA
+            <div className="text-center lg:text-left font-bold text-2xl tracking-[0.1em]">
+              Vista - Resumen Gerencia
             </div>
             <div className="flex flex-wrap items-center justify-center gap-2">
               <button
@@ -153,7 +153,7 @@ export default function PanelGerencia() {
             <tr className="bg-[#93c47d] text-center uppercase font-bold text-[10px]">
               <th className="border border-gray-400 p-2 text-blue-800 italic">Cliente(Lead)</th>
               <th className="border border-gray-400 p-2">Provincia</th>
-              <th className="border border-gray-400 p-1 bg-red-600 text-white">D. Pública</th>
+              <th className="border border-gray-400 p-1 bg-red-400 text-white">D. Pública</th>
               <th className="border border-gray-400 p-2 bg-[#f6b26b]">Ingresos</th>
               <th className="border border-gray-400 p-2 bg-[#ea9999]">Estado</th>
               <th className="border border-gray-400 p-2 bg-[#ea9999]">Situación Final</th>
