@@ -148,17 +148,18 @@ export default function PanelGerencia() {
         </div>
       </header>
       <div className="overflow-x-auto p-4">
-        <table className="w-full border-collapse border border-gray-400 text-sm">
+        <table className="border-collapse border border-gray-400 text-sm">
           <thead>
             <tr className="bg-[#93c47d] text-center uppercase font-bold text-[10px]">
-              <th className="border border-gray-400 p-2 text-blue-800 italic">Cliente(Lead)</th>
-              <th className="border border-gray-400 p-2">Provincia</th>
-              <th className="border border-gray-400 p-1 bg-red-400 text-white">D. Pública</th>
-              <th className="border border-gray-400 p-2 bg-[#f6b26b]">Ingresos</th>
-              <th className="border border-gray-400 p-2 bg-[#ea9999]">Estado</th>
-              <th className="border border-gray-400 p-2 bg-[#ea9999]">Situación Final</th>
-              <th className="border border-gray-400 p-2 bg-[#ea9999]">Asignado A:</th>
-              <th className="border border-gray-400 p-2 bg-purple-600 text-white">Acciones</th>
+              <th className="w-80 border border-gray-400 p-2 text-white ">Cliente(Lead)</th>
+              <th className="w-40 border border-gray-400 p-2">Provincia</th>
+              <th className="w-32 border border-gray-400 p-2">Teléfono</th>
+              <th className="w-32 border border-gray-400 p-2 bg-[#f6b26b]">Ingresos</th>
+              <th className="w-35 border border-gray-400 p-2 bg-[#ea9999]">Fase Cliente</th>
+              <th className="w-100 border border-gray-400 p-2 bg-[#ea9999]">Observaciones</th>
+              <th className="w-35 border border-gray-400 p-2 bg-[#ea9999]">Estado del Lead</th>
+              <th className="w-40 border border-gray-400 p-2 bg-[#ea9999]">Asignado A:</th>
+              <th className="w-40 border border-gray-400 p-2 bg-purple-600 text-white">Acciones</th>
             </tr>
           </thead>
           <tbody>
@@ -168,15 +169,16 @@ export default function PanelGerencia() {
               </tr>
             ) : (
               filteredLeads.map((l) => (
-                <tr key={l.id} className="text-center hover:bg-slate-100">
+                <tr key={l.id} className="hover:bg-slate-100 transition-colors">
                   <td className="border border-gray-400 p-2 text-gray-600 font-bold ">{l.nombre_completo}</td>
-                  <td className="border border-gray-400 p-2 text-gray-600 font-bold bg-[#fff2cc]">{l.provincia}</td>
-                  <td className="border border-gray-400 p-2 text-red-600 font-bold">{l.deuda_publica || '0'}€</td>
-                  <td className="border border-gray-400 p-2 text-gray-600 font-bold">{l.ingresos || '0'}€</td>
-                  <td className="border border-gray-400 p-2 text-gray-600 font-bold">{l.estado}</td>
-                  <td className="border border-gray-400 p-2 text-gray-600 font-bold">{l.situacion_final}</td>
-                  <td className="border border-gray-400 p-2 text-gray-600 font-bold">{getComercialNombre(l.asignado_a)}</td>
-                  <td className="border border-gray-400 p-2">
+                  <td className="text-center border border-gray-400 p-2 text-gray-600 font-bold bg-[#fff2cc]">{l.provincia}</td>
+                  <td className="text-center border border-gray-400 p-2 text-gray-600 font-bold">{l.telefono ? l.telefono.replace('+34', '').trim() : ''}</td>
+                  <td className="text-center border border-gray-400 p-2 text-gray-600 font-bold">{l.ingresos || '0'}€</td>
+                  <td className="text-center border border-gray-400 p-2 text-gray-600 font-bold">{l.fase}</td>
+                  <td className="text-center border border-gray-400 p-2 text-gray-600 font-bold">{l.seguimiento}</td>
+                  <td className="text-center border border-gray-400 p-2 text-gray-600 font-bold">{l.estado}</td>
+                  <td className="text-center border border-gray-400 p-2 text-gray-600 font-bold">{getComercialNombre(l.asignado_a)}</td>
+                  <td className="text-center border border-gray-400 p-2">
                     <button onClick={() => handleAsignar(l.id)} className="bg-blue-500 text-white px-2 py-1 rounded text-[10px] hover:bg-blue-600 transition-colors">
                       Asignar
                     </button>
