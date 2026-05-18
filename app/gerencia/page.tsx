@@ -64,6 +64,7 @@ export default function PanelGerencia() {
   const isOpenLead = (lead: any) => !lead.situacion_final || lead.situacion_final === 'Libre' || lead.situacion_final === '-';
   const totalLeadsCount = leads.length;
   const openLeadCount = leads.filter(isOpenLead).length;
+  const noContestaCount = leads.filter(lead => lead.situacion_final === 'No contesta').length;
 
   const comercialOpenCounts = leads.reduce((acc, lead) => {
     if (!isOpenLead(lead)) return acc;
@@ -77,6 +78,8 @@ export default function PanelGerencia() {
 
     if (selectedComercialFilter === 'En Gestión') return isOpenLead(lead);
     
+    if (selectedComercialFilter === 'No contesta') return lead.situacion_final === 'No contesta';
+
     if (!isOpenLead(lead)) return false;
     return getComercialNombre(lead.asignado_a) === selectedComercialFilter;
   });
@@ -114,6 +117,15 @@ export default function PanelGerencia() {
                 Todos
                 <span className="ml-2 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-white px-2 text-[11px] font-semibold text-slate-900">
                   {totalLeadsCount}
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setSelectedComercialFilter('No contesta')}
+                className={`rounded-full border px-3 py-2 text-[12px] font-semibold transition ${selectedComercialFilter === 'No contesta' ? 'bg-white text-slate-800 border-red-200 shadow-sm' : 'bg-blue-600 text-white border-transparent hover:bg-blue-500'}`}>
+                No Contesta
+                <span className="ml-2 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-white px-2 text-[11px] font-semibold text-slate-900">
+                  {noContestaCount}
                 </span>
               </button>
               <button
