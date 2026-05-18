@@ -61,20 +61,25 @@ export default function PanelGerencia() {
     return comercial ? comercial.nombre : comercialId
   }
 
-  const isOpenLead = (lead: any) => !lead.situacion_final || lead.situacion_final === 'Libre' || lead.situacion_final === '-'
-  const openLeadCount = leads.filter(isOpenLead).length
+  const isOpenLead = (lead: any) => !lead.situacion_final || lead.situacion_final === 'Libre' || lead.situacion_final === '-';
+  const totalLeadsCount = leads.length;
+  const openLeadCount = leads.filter(isOpenLead).length;
+
   const comercialOpenCounts = leads.reduce((acc, lead) => {
-    if (!isOpenLead(lead)) return acc
-    const key = lead.asignado_a || 'Sin asignar'
-    acc[key] = (acc[key] || 0) + 1
-    return acc
-  }, {} as Record<string, number>)
+    if (!isOpenLead(lead)) return acc;
+    const key = lead.asignado_a || 'Sin asignar';
+    acc[key] = (acc[key] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
 
   const filteredLeads = leads.filter((lead) => {
-    if (!isOpenLead(lead)) return false
-    if (selectedComercialFilter === 'Todos') return true
-    return getComercialNombre(lead.asignado_a) === selectedComercialFilter
-  })
+    if (selectedComercialFilter === 'Todos') return true;
+
+    if (selectedComercialFilter === 'En Gestión') return isOpenLead(lead);
+    
+    if (!isOpenLead(lead)) return false;
+    return getComercialNombre(lead.asignado_a) === selectedComercialFilter;
+  });
 
   const ejecutarAsignacion = async (comercialId: string) => {
     if (!leadSeleccionado) return
@@ -98,7 +103,7 @@ export default function PanelGerencia() {
       <header className="bg-[#4a86e8] p-4 text-white shadow-md">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex flex-col gap-3">
-            <div className="text-center lg:text-left font-bold text-2xl tracking-[0.1em]">
+            <div className="text-center lg:text-left font-bold text-2xl tracking-widest[0.1em]">
               Vista - Resumen Gerencia
             </div>
             <div className="flex flex-wrap items-center justify-center gap-2">
@@ -108,7 +113,16 @@ export default function PanelGerencia() {
                 className={`rounded-full border px-3 py-2 text-[12px] font-semibold transition ${selectedComercialFilter === 'Todos' ? 'bg-white text-slate-800 border-white shadow-sm' : 'bg-blue-600 text-white border-transparent hover:bg-blue-500'}`}>
                 Todos
                 <span className="ml-2 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-white px-2 text-[11px] font-semibold text-slate-900">
-                  {openLeadCount}
+                  {totalLeadsCount}
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setSelectedComercialFilter('En Gestión')} // <-- Cambiado el filtro
+                className={`rounded-full border px-3 py-2 text-[12px] font-semibold transition ${selectedComercialFilter === 'En Gestión' ? 'bg-white text-slate-800 border-white shadow-sm' : 'bg-blue-600 text-white border-transparent hover:bg-blue-500'}`}>
+                En Gestión
+                <span className="ml-2 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-white px-2 text-[11px] font-semibold text-slate-900">
+                  {openLeadCount} {/* <-- Recuperamos el contador original de abiertos */}
                 </span>
               </button>
               <button

@@ -548,13 +548,13 @@ const getStatusTextColor = (valor?: string | null) => {
       </header>
 
       {/* TABLA DE GESTIÓN */}
-      <div className="p-4 flex-1">
+      <div className="p-4 flex-1 w-full overflow-hidden">
         <div className="bg-white rounded-lg shadow-2xl border-slate-200 overflow-hidden">
           <div className="overflow-x-auto overflow-y-auto" style={{ maxHeight: '42rem' }}>
             <table className="w-full text-[12px] border-collapse table-fixed">
               <thead className="text-[13px] bg-[#ffffff] sticky top-0 z-20">
                 <tr>
-                  <th className="w-40 p-2 font-extrabold text-[#097706] sticky left-0 z-30 bg-white">
+                  <th className="w-40 p-2 font-extrabold text-[#097706] md:sticky left-0 z-30 bg-white">
                     <button
                       type="button"
                       onClick={() => handleSort('fase')}
@@ -563,11 +563,11 @@ const getStatusTextColor = (valor?: string | null) => {
                       FASE <span>{getSortIcon('fase')}</span>
                     </button>
                   </th>
-                  <th className="w-50 p-2 font-extrabold text-[#097706] bg-white sticky left-40 z-30">OBSERVACIONES</th>
-                  <th className="w-24 p-2 font-extrabold border-slate-300 text-[#ff7700] bg-white sticky left-90 z-30">FECHA</th>
-                  <th className="w-24 p-2 font-extrabold border-slate-300 text-[#ff7700] bg-white sticky left-114 z-30">DNI-NIE</th>
-                  <th className="w-55 p-2 font-extrabold border-slate-300 text-[#ff7700] bg-white sticky left-138 z-30">NOMBRE COMPLETO</th>
-                  <th className="w-32 p-2 font-extrabold border-slate-300 text-[#ff7700] bg-white sticky left-193 z-30 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.15)">TELÉFONO</th>
+                  <th className="w-50 p-2 font-extrabold text-[#097706] bg-white md:sticky md:left-40 z-30">OBSERVACIONES</th>
+                  <th className="w-24 p-2 font-extrabold border-slate-300 text-[#ff7700] bg-white md:sticky md:left-90 z-30">FECHA</th>
+                  <th className="w-24 p-2 font-extrabold border-slate-300 text-[#ff7700] bg-white md:sticky md:left-114 z-30">DNI-NIE</th>
+                  <th className="w-55 p-2 font-extrabold border-slate-300 text-[#ff7700] bg-white md:sticky md:left-138 z-30">NOMBRE COMPLETO</th>
+                  <th className="w-32 p-2 font-extrabold border-slate-300 text-[#ff7700] bg-white md:sticky md:left-193 z-30 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.15)">TELÉFONO</th>
                   <th className="w-32 p-2 font-extrabold border-slate-300 text-[#ff7700]">
                     <button
                       type="button"
@@ -599,7 +599,7 @@ const getStatusTextColor = (valor?: string | null) => {
                   <th className="w-24 p-2 font-extrabold border-slate-300 text-[#4b8b16]">N.CUOTAS</th>
                   <th className="w-32 p-2 font-extrabold border-slate-300 text-[#4b8b16]">F. 1ER PAGO</th>
                   <th className="w-24 p-2 font-extrabold border-slate-300 text-[#4b8b16]">H.ENCARGO</th>
-                  <th className="w-28 p-2 font-extrabold text-[#097706]">F. CONTRAT.</th>                  
+                  <th className="w-28 p-2 font-extrabold text-[#097706]">F. CONTRAT.</th>
                   <th className="w-32 p-2 font-extrabold text-[#af7532]">SITUA. FINAL</th>
 
                 </tr>
@@ -632,7 +632,7 @@ const getStatusTextColor = (valor?: string | null) => {
                   ).map((lead) => (
                     <tr key={lead.id} className="hover:bg-blue-50/40 transition-colors border-b border-slate-100">
                     {/* FASE */}
-                    <td className="p-1 text-center font-bold sticky left-0 z-10 bg-white">
+                    <td className="p-1 text-center font-bold md:sticky md:left-0 z-10 bg-white">
                       <div className="relative inline-flex w-full justify-center">
                         <button
                           type="button"
@@ -655,7 +655,7 @@ const getStatusTextColor = (valor?: string | null) => {
                     </td>
                     {/* OBSERVACIONES */}
 
-                    <td className="p-1 sticky left-40 z-10 bg-white">
+                    <td className="p-1 md:sticky md:left-40 z-10 bg-white">
                       <div className="tooltip-wrapper">
                         {lead.seguimiento && (
                           <div className="tooltip-box">
@@ -671,20 +671,20 @@ const getStatusTextColor = (valor?: string | null) => {
                       </div>
                     </td>
                     {/* FECHA CREACIÓN */}
-                    <td className="p-2 text-center truncate text-slate-700 sticky left-90 z-10 bg-white">
+                    <td className="p-2 text-center truncate text-slate-700 md:sticky md:left-90 z-10 bg-white">
                       {lead.fecha_creacion ? new Date(lead.fecha_creacion).toLocaleDateString('es-ES', { 
                         day: 'numeric',
                         month: 'short'
                       }).replace('.', '').replace(/ /g, '-').replace(/^\w|(?<=-)\w/g, (l) => l.toUpperCase()) : '-'}
                     </td>
                     {/* HORARIO DE LLAMADA */}
-                    <td className="p-2 text-center truncate text-slate-700 sticky left-114 z-10 bg-white">{lead.dni_nie}</td>
+                    <td className="p-2 text-center truncate text-slate-700 md:sticky md:left-114 z-10 bg-white">{lead.dni_nie}</td>
                     {/* NOMBRE COMPLETO */}
-                    <td className="p-2 text-center font-semibold truncate text-slate-700 sticky left-138 z-10 bg-white" title={lead.nombre_completo ?? ''}>
+                    <td className="p-2 text-center font-semibold truncate text-slate-700 md:sticky md:left-138 z-10 bg-white" title={lead.nombre_completo ?? ''}>
                       {lead.nombre_completo}
                     </td>
                     {/* TELÉFONO */}
-                    <td className="p-2 font-medium text-center truncate text-slate-700 sticky left-193 z-10 bg-white">
+                    <td className="p-2 font-medium text-center truncate text-slate-700 md:sticky md:left-193 z-10 bg-white">
                       {lead.telefono ? lead.telefono.replace('+34', '').trim() : ''}
                     </td>
                     {/* PROVINCIA */}
