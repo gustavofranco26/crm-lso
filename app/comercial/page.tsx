@@ -331,13 +331,23 @@ useEffect(() => {
   const isClosing = field === 'situacion_final' && isFinalClosed(situacionFinalValue);
 
   // 4. OBJETO DE ACTUALIZACIÓN
-  const updates: any = field === 'situacion_final'
-    ? {
-        situacion_final: situacionFinalValue,
-        estado: isClosing ? 'cerrado' : 'nuevo',
-        fecha_contratado: situacionFinalValue === 'Contratado' ? new Date().toISOString() : null,
-      }
-    : { [field]: valorFinal };
+  let updates: any = {};
+
+  if (field === 'situacion_final') {
+    updates = {
+      situacion_final: situacionFinalValue,
+      estado: isClosing ? 'cerrado' : 'nuevo',
+      fecha_contratado: situacionFinalValue === 'Contratado' ? new Date().toISOString() : null,
+    };
+  } else if (field === 'fase') {
+    updates = {
+      fase: valorFinal,
+      situacion_final: null,
+      estado: 'nuevo',
+    };
+  } else {
+    updates = { [field]: valorFinal };
+  }
 
   // 5. ENVÍO A SUPABASE
   const { error } = await supabase
